@@ -27,10 +27,23 @@ rhit.ClassName = class {
 	}
 }
 
+function openNav() {
+	document.getElementById("mySidenav").style.width = "250px";
+}
+
+function closeNav() {
+	document.getElementById("mySidenav").style.width = "0";
+}
+
 /* Main */
 /** function and class syntax examples */
 rhit.main = function () {
 	console.log("Ready");
+
+	document.querySelector("#butt").onclick = (e) => {
+		openNav();
+	}
+
 };
 
 rhit.main();
