@@ -7,19 +7,36 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons">
   <link rel="stylesheet" href="styles/bootstrap-material-design.min.css">
   <link rel="stylesheet" href="styles/main.css">
-  
+
   <title>DIY Organizer</title>
 </head>
 
 <body>
-  <div id = "includedContent"></div>
+  <div id="includedContent"></div>
+  <div id="mainPage" class="container page-container">
+    <div id="loginArea">
+      <h1>DIY Organizer</h1>
+      <div class="form-group">
+        <label for="userInput" class="bmd-label-floating">Username or Email Address</label>
+        <input type="text" class="form-control" id="userInput">
+      </div>
+      <div class="form-group">
+        <label for="passwordInput" class="bmd-label-floating">Password</label>
+        <input type="password" class="form-control">
+      </div>
+      <button type="button" id = "loginBtn" class="btn btn-primary btn-outline">Login</button>
+      <br><br>
+      <h5>Dont have an account?</h5>
+      <a href="#" id = "createText">Create One!</a>
+    </div>
+  </div>
   <script src="scripts/jquery.min.js"></script>
   <script src="scripts/popper.js"></script>
   <script src="scripts/bootstrap-material-design.js"></script>
   <script>
     $("body").bootstrapMaterialDesign();
-    $(function(){
-      $("#includedContent").load("menuTemplate.html"); 
+    $(function () {
+      $("#includedContent").load("menuTemplate.html");
     });
   </script>
   <script src="/__/firebase/7.18.0/firebase-app.js"></script>
