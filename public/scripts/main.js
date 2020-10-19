@@ -40,7 +40,7 @@ function closeNav() {
 rhit.main = function () {
 	console.log("Ready");
 
-	document.querySelector("#butt").onclick = (e) => {
+	document.querySelector("#drawerBtn").onclick = (e) => {
 		openNav();
 	}
 
