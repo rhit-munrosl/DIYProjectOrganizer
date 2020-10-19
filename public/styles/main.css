@@ -46,14 +46,14 @@ body {
     margin-left: 50px;
 }
 
-#loginArea {
+#loginArea, #createAccountArea {
     width: 50%;
     margin: 0 auto;
 }
 
-#loginBtn {
-    background-color: #800000;
-    color: #DDDDDD;
+.org-btn {
+    background-color: #800000 !important; 
+    color: #DDDDDD !important;
 }
 
 #createText {
