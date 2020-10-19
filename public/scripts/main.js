@@ -39,11 +39,6 @@ function closeNav() {
 /** function and class syntax examples */
 rhit.main = function () {
 	console.log("Ready");
-
-	document.querySelector("#drawerBtn").onclick = (e) => {
-		openNav();
-	}
-
 };
 
 rhit.main();

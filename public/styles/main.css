@@ -59,3 +59,21 @@ body {
 #createText {
     color: #800000;
 }
+
+.part {
+    border: 1px solid #818181;
+    border-radius: 5px;
+    margin: 10px 0px;
+    padding: 10px;
+}
+
+#categoryDropdown {
+    color:white;
+    background-color: #800000;
+    right: 0px;
+    margin-left: 30px;
+}
+
+#searchFunctions div{
+    display: inline-block;
+}
