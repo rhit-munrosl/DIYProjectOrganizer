@@ -1,6 +1,6 @@
 body {
     background: #DDDDDD;
-    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    font-family: 'Roboto','Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
 }
 
 .navbar {
@@ -76,4 +76,9 @@ body {
 
 #searchFunctions div{
     display: inline-block;
+}
+
+#partsContainer {
+    width: 50%;
+    margin: 0 auto;
 }

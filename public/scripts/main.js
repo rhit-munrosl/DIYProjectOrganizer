@@ -29,10 +29,13 @@ rhit.ClassName = class {
 
 function openNav() {
 	document.getElementById("mySidenav").style.width = "250px";
+	document.querySelectorAll("#mySidenav a").style.visibility = "visible"; 
 }
 
 function closeNav() {
 	document.getElementById("mySidenav").style.width = "0";
+	document.querySelectorAll("#mySidenav a").style.visibility = "hidden"; 
+
 }
 
 /* Main */
