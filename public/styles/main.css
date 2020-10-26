@@ -20,7 +20,7 @@ body {
     top: 0;
     left: 0;
     background-color: #f1f1f1;
-    overflow-x: hidden;
+    overflow: hidden;
     transition: 0.5s;
     padding-top: 60px;
 }
@@ -32,6 +32,8 @@ body {
     color: #818181;
     display: block;
     transition: 0.3s;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 .sidenav a:hover {
@@ -60,25 +62,49 @@ body {
     color: #800000;
 }
 
-.part {
-    border: 1px solid #818181;
+.part, .project {
+    border: 4px solid #818181;
     border-radius: 5px;
-    margin: 10px 0px;
     padding: 10px;
+    overflow:hidden;
 }
 
-#categoryDropdown {
+#categoryDropdown, #categoryDropdownPart {
     color:white;
     background-color: #800000;
     right: 0px;
+}
+
+#categoryDropdown {
     margin-left: 30px;
 }
 
 #searchFunctions div{
     display: inline-block;
 }
-
-#partsContainer {
+/*
+#partsContainer, #partContainer {
     width: 50%;
     margin: 0 auto;
+}
+*/
+
+#partInfo {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 40px;
+}
+
+#partsList {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-gap: 5px;
+    grid-template-rows: min-content;
+}
+
+#projectsGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-gap: 5px;
+    grid-template-rows: min-content;
 }

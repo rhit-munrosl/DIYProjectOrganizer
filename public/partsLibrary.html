@@ -13,10 +13,10 @@
 
 <body>
     <div id="includedContent"></div>
-    <div id="mainPage" class="container page-container">
+    <div id="partsPage" class="container page-container">
         <div id="partsContainer">
             <h1>Parts Library</h1>
-            <br>
+            <hr>
             <br>
             <div id="searchFunctions">
                 <div class="active-red-4 mb-4">
@@ -34,24 +34,70 @@
                     </div>
                 </div>
             </div>
-            <div id="partsList">
-                <div class="part">
-                    <h4 class="p-name">Example Part</h4>
-                    <h6 class="p-desc">This is a sample description for the first part in this list
-                    </h6>
-                    <hr>
-                    <h6 class="p-price">$20.00</h6>
+            <div id="partInfo">
+                <div id="partsList" class="grid-container grid-child">
+                    <div class="part">
+                        <h4 class="p-name">Example Part</h4>
+                        <h6 class="p-desc">This is a sample description for the first part in this list
+                        </h6>
+                        <hr>
+                        <h6 class="p-price">$20.00</h6>
+                    </div>
+                    <div class="part">
+                        <h4 class="p-name">Example Part 2</h4>
+                        <h6 class="p-desc">This is a sample description for the second part in this list
+                        </h6>
+                        <hr>
+                        <h6 class="p-price">$9.54</h6>
+                    </div>
+                    <div class="part">
+                        <h4 class="p-name">Example Part</h4>
+                        <h6 class="p-desc">This is a sample description for the first part in this list
+                        </h6>
+                        <hr>
+                        <h6 class="p-price">$20.00</h6>
+                    </div>
+                    <div class="part">
+                        <h4 class="p-name">Example Part 2</h4>
+                        <h6 class="p-desc">This is a sample description for the second part in this list
+                        </h6>
+                        <hr>
+                        <h6 class="p-price">$9.54</h6>
+                    </div>
+                    <div class="part">
+                        <h4 class="p-name">Example Part</h4>
+                        <h6 class="p-desc">This is a sample description for the first part in this list
+                        </h6>
+                        <hr>
+                        <h6 class="p-price">$20.00</h6>
+                    </div>
+                    <div class="part">
+                        <h4 class="p-name">Example Part 2</h4>
+                        <h6 class="p-desc">This is a sample description for the second part in this list
+                        </h6>
+                        <hr>
+                        <h6 class="p-price">$9.54</h6>
+                    </div>
                 </div>
-                <div class="part">
-                    <h4 class="p-name">Example Part 2</h4>
-                    <h6 class="p-desc">This is a sample description for the second part in this list
+                <div id="partContainer" class="grid-child">
+                    <h4 id="partName">Example Part
+                        <button id="partEdit" class="btn" type="button" data-toggle="modal"
+                            data-target="#editPartDialog"><i class="material-icons">edit</i></button></h4>
+
+                    <h6 id="partDesc" class="p-desc">This is a sample description for the first part in this list
+                    </h6>
+
+                    <h6 id="partLink" class="p-desc">https://thisisthelink.com
                     </h6>
                     <hr>
-                    <h6 class="p-price">$9.54</h6>
+                    <h6 id="partPrice" class="p-price">$20.00</h6>
+                    <h6 id="partCat" class="p-desc">Motors</h6>
+
                 </div>
             </div>
 
         </div>
+
     </div>
 
     <template>
@@ -63,21 +109,70 @@
         </div>
         </div>
     </template>
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="editPartDialog" tabindex="-1" role="dialog" aria-labelledby="Edit part dialog"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Part Attributes</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group bmd-form-group">
+                        <label for="inputName">Name</label>
+                        <input type="text" class="form-control" id="inputPartName" placeholder="Name">
+                    </div>
+                    <div class="form-group bmd-form-group">
+                        <label for="inputMovie">Description</label>
+                        <input type="text" class="form-control" id="inputPartDesc" placeholder="Desc">
+                    </div>
+                    <div class="form-group bmd-form-group">
+                        <label for="inputName">Price</label>
+                        <input type="number" class="form-control" id="inputPartPrice" placeholder="Price">
+                    </div>
+                    <div class="form-group bmd-form-group">
+                        <label for="inputMovie">Product Link</label>
+                        <input type="text" class="form-control" id="inputPartLink" placeholder="Link">
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="categoryDropdownPart"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Category
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <a class="dropdown-item" href="#">Motors</a>
+                            <a class="dropdown-item" href="#">Wires</a>
+                            <a class="dropdown-item" href="#">Bearings</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">CANCEL</button>
+                    <button type="button" id="submitEditPart" class="btn btn-primary"
+                        data-dismiss="modal">UPDATE</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <script src="scripts/jquery.min.js"></script>
-  <script src="scripts/popper.js"></script>
-  <script src="scripts/bootstrap-material-design.js"></script>
-  <script>
-    $("body").bootstrapMaterialDesign();
-    $(function () {
-      $("#includedContent").load("menuTemplate.html");
-    });
-  </script>
-  <script src="/__/firebase/7.18.0/firebase-app.js"></script>
-  <script src="/__/firebase/7.18.0/firebase-analytics.js"></script>
-  <script src="/__/firebase/7.18.0/firebase-auth.js"></script>
-  <script src="/__/firebase/7.18.0/firebase-firestore.js"></script>
-  <script src="/__/firebase/init.js"></script>
-  <script src="scripts/main.js"></script>
+    <script src="scripts/popper.js"></script>
+    <script src="scripts/bootstrap-material-design.js"></script>
+    <script>
+        $("body").bootstrapMaterialDesign();
+        $(function () {
+            $("#includedContent").load("menuTemplate.html");
+        });
+    </script>
+    <script src="/__/firebase/7.18.0/firebase-app.js"></script>
+    <script src="/__/firebase/7.18.0/firebase-analytics.js"></script>
+    <script src="/__/firebase/7.18.0/firebase-auth.js"></script>
+    <script src="/__/firebase/7.18.0/firebase-firestore.js"></script>
+    <script src="/__/firebase/init.js"></script>
+    <script src="scripts/main.js"></script>
 </body>
 
 </html>
