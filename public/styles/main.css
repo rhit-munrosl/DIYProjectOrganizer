@@ -1,15 +1,20 @@
+:root {
+    --main-color: #7C6EF5;
+}
+
 body {
     background: #DDDDDD;
     font-family: 'Roboto','Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
 }
 
 .navbar {
-    background-color: #800000;
+    background-color: var(--main-color);
     color: white;
 }
 
 .page-container {
     margin-top: 75px;
+    
 }
 
 .sidenav {
@@ -54,28 +59,31 @@ body {
 }
 
 .org-btn {
-    background-color: #800000 !important; 
+    background-color: var(--main-color) !important; 
     color: #DDDDDD !important;
 }
 
 #createText {
-    color: #800000;
+    color: var(--main-color);
 }
 
-.part, .project {
+.part, .project, .resource {
     border: 4px solid #818181;
     border-radius: 5px;
     padding: 10px;
     overflow:hidden;
 }
 
-#categoryDropdown, #categoryDropdownPart {
+#categoryDropdown, #categoryDropdownPart, #partAdd,
+ #addCat, #categoryDropdownAddPart {
     color:white;
-    background-color: #800000;
+    background-color: var(--main-color);
     right: 0px;
 }
 
-#categoryDropdown {
+#categoryDropdown, #projectAdd, #resourceAdd {
+    color:white;
+    background-color: var(--main-color);
     margin-left: 30px;
 }
 
@@ -89,15 +97,30 @@ body {
 }
 */
 
-#partInfo {
+#partInfo, #resourceInfo {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 2fr 1fr;
     grid-gap: 40px;
+    grid-template-rows: min-content;
+}
+
+#projectInfo {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-gap: 40px;
+    width: 100%;
 }
 
 #partsList {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-gap: 5px;
+    grid-template-rows: min-content;
+}
+
+#resourcesList {
+    display: grid;
+    grid-template-columns: 1fr;
     grid-gap: 5px;
     grid-template-rows: min-content;
 }
@@ -107,4 +130,8 @@ body {
     grid-template-columns: 1fr 1fr 1fr 1fr;
     grid-gap: 5px;
     grid-template-rows: min-content;
+}
+
+.drawIc {
+    color: var(--main-color);
 }

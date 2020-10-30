@@ -31,8 +31,12 @@
                         <a class="dropdown-item" href="#">Motors</a>
                         <a class="dropdown-item" href="#">Wires</a>
                         <a class="dropdown-item" href="#">Bearings</a>
+                        <a id = "addCat" class = "dropdown-item" data-toggle="modal" href = "#"
+                            data-target="#addCatDialog"><i class="material-icons">add</i></a>
                     </div>
                 </div>
+                <button id="partAdd" class="btn btn-secondary" type="button" data-toggle="modal"
+                            data-target="#addPartDialog">Add Part</button>
             </div>
             <div id="partInfo">
                 <div id="partsList" class="grid-container grid-child">
@@ -121,19 +125,19 @@
                 </div>
                 <div class="modal-body">
                     <div class="form-group bmd-form-group">
-                        <label for="inputName">Name</label>
+                        <label for="inputPartName">Name</label>
                         <input type="text" class="form-control" id="inputPartName" placeholder="Name">
                     </div>
                     <div class="form-group bmd-form-group">
-                        <label for="inputMovie">Description</label>
+                        <label for="inputPartDesc">Description</label>
                         <input type="text" class="form-control" id="inputPartDesc" placeholder="Desc">
                     </div>
                     <div class="form-group bmd-form-group">
-                        <label for="inputName">Price</label>
+                        <label for="inputPartPrice">Price</label>
                         <input type="number" class="form-control" id="inputPartPrice" placeholder="Price">
                     </div>
                     <div class="form-group bmd-form-group">
-                        <label for="inputMovie">Product Link</label>
+                        <label for="inputPartLink">Product Link</label>
                         <input type="text" class="form-control" id="inputPartLink" placeholder="Link">
                     </div>
                     <div class="dropdown">
@@ -152,6 +156,73 @@
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">CANCEL</button>
                     <button type="button" id="submitEditPart" class="btn btn-primary"
                         data-dismiss="modal">UPDATE</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="addPartDialog" tabindex="-1" role="dialog" aria-labelledby="Add part dialog"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Part</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group bmd-form-group">
+                        <label for="addPartName">Name</label>
+                        <input type="text" class="form-control" id="addPartName" placeholder="Name">
+                    </div>
+                    <div class="form-group bmd-form-group">
+                        <label for="addPartDesc">Description</label>
+                        <input type="text" class="form-control" id="addPartDesc" placeholder="Desc">
+                    </div>
+                    <div class="form-group bmd-form-group">
+                        <label for="addPartPrice">Price</label>
+                        <input type="number" class="form-control" id="addPartPrice" placeholder="Price">
+                    </div>
+                    <div class="form-group bmd-form-group">
+                        <label for="addPartLink">Product Link</label>
+                        <input type="text" class="form-control" id="addPartLink" placeholder="Link">
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="categoryDropdownAddPart"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Category
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <a class="dropdown-item" href="#">Motors</a>
+                            <a class="dropdown-item" href="#">Wires</a>
+                            <a class="dropdown-item" href="#">Bearings</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">CANCEL</button>
+                    <button type="button" id="submitAddPart" class="btn btn-primary"
+                        data-dismiss="modal">ADD</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="addCatDialog" tabindex="-1" role="dialog" aria-labelledby="Add category dialog"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Category</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group bmd-form-group">
+                        <label for="addCatName">Name</label>
+                        <input type="text" class="form-control" id="addCatName" placeholder="Name">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">CANCEL</button>
+                    <button type="button" id="submitAddCat" class="btn btn-primary"
+                        data-dismiss="modal">ADD</button>
                 </div>
             </div>
         </div>

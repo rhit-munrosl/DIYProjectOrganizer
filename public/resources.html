@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons">
+    <link rel="stylesheet" href="styles/bootstrap-material-design.min.css">
+    <link rel="stylesheet" href="styles/main.css">
+
+    <title>DIY Organizer - All Resources</title>
+</head>
+
+<body>
+    <div id="includedContent"></div>
+    <div id="resourcePage" class="container page-container">
+        <div id="partsContainer">
+            <h1>Resources</h1>
+            <hr>
+            <br>
+            <div id="searchFunctions">
+                    <div class="active-red-4 mb-4">
+                        <input class="form-control" type="text" placeholder="Search" aria-label="Search">
+                    </div>
+                    <button id="resourceAdd" class="btn btn-secondary" type="button" data-toggle="modal"
+                        data-target="#addResourceDialog">New Resource</button>
+                </div>
+            </div>
+            <div id="resourceInfo">
+                <div id="resourcesList" class="grid-container grid-child">
+                    <div class="resource">
+                        <h4 class="p-name">Example Resource</h4>
+                        <h6 class="p-desc">This is a sample description for the first resource in this list
+                        </h6>
+                        <hr>
+                        <h6 class="p-desc"><a href = "https://thisisthelink.com">https://thisisthelink.com</a></h6>
+                    </div>
+                    <div class="resource">
+                        <h4 class="p-name">Example Resource</h4>
+                        <h6 class="p-desc">This is a sample description for the first resource in this list
+                        </h6>
+                        <hr>
+                        <h6 class="p-desc"><a href = "https://thisisthelink.com">https://thisisthelink.com</a></h6>
+                    </div>
+                    <div class="resource">
+                        <h4 class="p-name">Example Resource</h4>
+                        <h6 class="p-desc">This is a sample description for the first resource in this list
+                        </h6>
+                        <hr>
+                        <h6 class="p-desc"><a href = "https://thisisthelink.com">https://thisisthelink.com</a></h6>
+                    </div>
+                </div>
+                <div id="resourceContainer" class="grid-child">
+                    <h4 id="resourceName">Example Resource
+                        <button id="resourceEdit" class="btn" type="button" data-toggle="modal"
+                            data-target="#editResourceDialog"><i class="material-icons">edit</i></button></h4>
+
+                    <h6 id="resourceDesc" class="p-desc">This is a sample description for the first resource in this list
+                    </h6>
+
+                    <h6 id="resourceLink" class="p-desc">https://thisisthelink.com
+                    </h6>
+                    <hr>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <template>
+        <div class="part">
+            <h4 class="p-name">Example Part 2</h4>
+            <h6 class="p-desc">This is a sample description for the second part in this list</h6>
+            <hr>
+            <h6 class="p-price">$9.54</h6>
+        </div>
+        </div>
+    </template>
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="editResourceDialog" tabindex="-1" role="dialog" aria-labelledby="Edit part dialog"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Resource</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group bmd-form-group">
+                        <label for="inputResourceName">Name</label>
+                        <input type="text" class="form-control" id="inputResourceName" placeholder="Name">
+                    </div>
+                    <div class="form-group bmd-form-group">
+                        <label for="inputResourceDesc">Description</label>
+                        <input type="text" class="form-control" id="inputResourceDesc" placeholder="Desc">
+                    </div>
+                    <div class="form-group bmd-form-group">
+                        <label for="inputResourceLink">Resource Link</label>
+                        <input type="text" class="form-control" id="inputResourceLink" placeholder="Link">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">CANCEL</button>
+                    <button type="button" id="submitEditPart" class="btn btn-primary"
+                        data-dismiss="modal">UPDATE</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="addResourceDialog" tabindex="-1" role="dialog" aria-labelledby="Add resource dialog"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Resource</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group bmd-form-group">
+                        <label for="addResourceName">Name</label>
+                        <input type="text" class="form-control" id="addResourceName" placeholder="Name">
+                    </div>
+                    <div class="form-group bmd-form-group">
+                        <label for="addResourceDesc">Description</label>
+                        <input type="text" class="form-control" id="addResourceDesc" placeholder="Desc">
+                    </div>
+                    <div class="form-group bmd-form-group">
+                        <label for="addResourceLink">Resource Link</label>
+                        <input type="text" class="form-control" id="addResourceLink" placeholder="Link">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">CANCEL</button>
+                    <button type="button" id="submitAddPart" class="btn btn-primary"
+                        data-dismiss="modal">ADD</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="scripts/jquery.min.js"></script>
+    <script src="scripts/popper.js"></script>
+    <script src="scripts/bootstrap-material-design.js"></script>
+    <script>
+        $("body").bootstrapMaterialDesign();
+        $(function () {
+            $("#includedContent").load("menuTemplate.html");
+        });
+    </script>
+    <script src="/__/firebase/7.18.0/firebase-app.js"></script>
+    <script src="/__/firebase/7.18.0/firebase-analytics.js"></script>
+    <script src="/__/firebase/7.18.0/firebase-auth.js"></script>
+    <script src="/__/firebase/7.18.0/firebase-firestore.js"></script>
+    <script src="/__/firebase/init.js"></script>
+    <script src="scripts/main.js"></script>
+</body>
+
+</html>
