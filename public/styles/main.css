@@ -17,6 +17,10 @@ body {
     
 }
 
+#loginPage, #loggedInPage {
+    display: none;
+}
+
 .sidenav {
     height: 100%;
     width: 0;
@@ -67,15 +71,25 @@ body {
     color: var(--main-color);
 }
 
-.part, .project, .resource {
+a.divLink{
+    display: block;
+    height: 100%;
+    width: 100%;
+    text-decoration: none;
+}
+
+.part, .project, .resource, .homeBtn {
     border: 4px solid #818181;
     border-radius: 5px;
     padding: 10px;
     overflow:hidden;
+    transition: 0.2s;
+    text-decoration: none;
+    cursor: pointer;
 }
 
 #categoryDropdown, #categoryDropdownPart, #partAdd,
- #addCat, #categoryDropdownAddPart {
+ #addCat, #categoryDropdownAddPart, #partAddProj, #resAddProj {
     color:white;
     background-color: var(--main-color);
     right: 0px;
@@ -106,14 +120,14 @@ body {
 
 #projectInfo {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 2fr 1fr;
     grid-gap: 40px;
     width: 100%;
 }
 
 #partsList {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
     grid-gap: 5px;
     grid-template-rows: min-content;
 }
@@ -134,4 +148,42 @@ body {
 
 .drawIc {
     color: var(--main-color);
+}
+
+#projectsGridHome {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 5px;
+    grid-template-rows: min-content;
+}
+
+#stageArea {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 30px;
+    grid-template-rows: min-content;
+}
+
+#buttonGrid {
+    display: grid;
+    grid-template-rows: 1fr 1fr 1fr;
+    grid-gap: 5px;
+}
+
+.homeBtn {
+    text-align: center;
+    transition: 0.2s;
+}
+
+.homeBtn a {
+    font-size: 2em;
+    text-decoration: none;
+    color: #212529;
+    display: block;
+    padding: 50px;
+}
+
+.homeBtn:hover, .part:hover, .project:hover,
+.resource:hover {
+    background-color: #d1d1d1;
 }
