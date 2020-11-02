@@ -69,23 +69,27 @@ rhit.FbAuthManager = class {
 
 rhit.CreateAccountController = class {
 	constructor() {
-		const inputEmail = document.querySelector("#emailInput");
-		const inputPass = document.querySelector("#passwordInput");
-		const inputConfirmPass = document.querySelector("#confPasswordInput");
+
+		document.querySelector("#createBtn").onclick = (event) => {
+
+			const inputEmail = document.querySelector("#emailInput");
+			const inputPass = document.querySelector("#passwordInput");
+			const inputConfirmPass = document.querySelector("#confPasswordInput");
 
 
-		if (inputPass.value == inputConfirmPass.value) {
-			firebase.auth().createUserWithEmailAndPassword(inputEmail.value, inputPass.value).catch(function (error) {
-				// Handle Errors here.
-				var errorCode = error.code;
-				var errorMessage = error.message;
-				console.log("Create account error occured", error);
-				// ...
-			});
-			window.location.href = "/";
-		} else {
-			document.querySelector("#errorText").innerHTML = "Passwords must match";
-		}
+			if (inputPass.value == inputConfirmPass.value) {
+				firebase.auth().createUserWithEmailAndPassword(inputEmail.value, inputPass.value).catch(function (error) {
+					// Handle Errors here.
+					var errorCode = error.code;
+					var errorMessage = error.message;
+					console.log("Create account error occured", error);
+					// ...
+				});
+				window.location.href = "/";
+			} else {
+				document.querySelector("#errorText").innerHTML = "Passwords must match";
+			}
+		};
 
 	}
 }
@@ -93,7 +97,7 @@ rhit.CreateAccountController = class {
 rhit.IndexPageController = class {
 	constructor() {
 		document.querySelector("#loginPage").style.display = "none";
-		document.querySelector("#loggedInPage").style.display = "none";		
+		document.querySelector("#loggedInPage").style.display = "none";
 		if (rhit.fbAuthManager.isSignedIn) {
 			document.querySelector("#loggedInPage").style.display = "block";
 			document.querySelector("#loginPage").style.display = "none";
@@ -102,7 +106,7 @@ rhit.IndexPageController = class {
 				rhit.fbAuthManager.signIn();
 			};
 			document.querySelector("#loginPage").style.display = "block";
-			document.querySelector("#loggedInPage").style.display = "none";	
+			document.querySelector("#loggedInPage").style.display = "none";
 		}
 	}
 }

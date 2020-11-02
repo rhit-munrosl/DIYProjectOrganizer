@@ -187,3 +187,8 @@ a.divLink{
 .resource:hover {
     background-color: #d1d1d1;
 }
+
+#inputPartPurchased {
+    border: 1px solid #818181;
+    border-radius: 3px;
+}
