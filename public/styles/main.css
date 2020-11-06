@@ -154,7 +154,7 @@ a.divLink{
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-gap: 5px;
-    grid-template-rows: min-content;
+    grid-auto-rows: minmax(200px, 300px);
 }
 
 #stageArea {

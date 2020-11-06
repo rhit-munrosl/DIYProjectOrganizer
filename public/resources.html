@@ -14,57 +14,40 @@
 <body>
     <div id="includedContent"></div>
     <div id="resourcePage" class="container page-container">
-        <div id="partsContainer">
+        <div id="resourcesContainer">
             <h1>Resources</h1>
             <hr>
             <br>
             <div id="searchFunctions">
-                    <div class="active-red-4 mb-4">
-                        <input class="form-control" type="text" placeholder="Search" aria-label="Search">
-                    </div>
-                    <button id="resourceAdd" class="btn btn-secondary" type="button" data-toggle="modal"
-                        data-target="#addResourceDialog">New Resource</button>
+                <div class="active-red-4 mb-4">
+                    <input class="form-control" type="text" placeholder="Search" aria-label="Search">
                 </div>
+                <button id="resourceSearch" class="btn" type="button" data-toggle="modal"><i
+                    class="material-icons">search</i></button></h4>
+                <button id="resourceAdd" class="btn btn-secondary" type="button" data-toggle="modal"
+                    data-target="#addResourceDialog">New Resource</button>
             </div>
-            <div id="resourceInfo">
-                <div id="resourcesList" class="grid-container grid-child">
-                    <div class="resource">
-                        <h4 class="p-name">Example Resource</h4>
-                        <h6 class="p-desc">This is a sample description for the first resource in this list
-                        </h6>
-                        <hr>
-                        <h6 class="p-desc"><a href = "https://thisisthelink.com">https://thisisthelink.com</a></h6>
-                    </div>
-                    <div class="resource">
-                        <h4 class="p-name">Example Resource</h4>
-                        <h6 class="p-desc">This is a sample description for the first resource in this list
-                        </h6>
-                        <hr>
-                        <h6 class="p-desc"><a href = "https://thisisthelink.com">https://thisisthelink.com</a></h6>
-                    </div>
-                    <div class="resource">
-                        <h4 class="p-name">Example Resource</h4>
-                        <h6 class="p-desc">This is a sample description for the first resource in this list
-                        </h6>
-                        <hr>
-                        <h6 class="p-desc"><a href = "https://thisisthelink.com">https://thisisthelink.com</a></h6>
-                    </div>
-                </div>
-                <div id="resourceContainer" class="grid-child">
-                    <h4 id="resourceName">Example Resource
-                        <button id="resourceEdit" class="btn" type="button" data-toggle="modal"
-                            data-target="#editResourceDialog"><i class="material-icons">edit</i></button></h4>
-
-                    <h6 id="resourceDesc" class="p-desc">This is a sample description for the first resource in this list
-                    </h6>
-
-                    <h6 id="resourceLink" class="p-desc">https://thisisthelink.com
-                    </h6>
-                    <hr>
-                </div>
-            </div>
-
         </div>
+        <div id="resourceInfo">
+            <div id="resourcesList" class="grid-container grid-child">
+                
+            </div>
+            <div id="resourceContainer" class="grid-child">
+                <h4><span id="resourceName"></span>
+                    <button id="resourceEdit" class="btn" type="button" data-toggle="modal"
+                        data-target="#editResourceDialog"><i class="material-icons">edit</i></button>
+                    <button id="resourceDelete" class="btn" type="button" data-toggle="modal"
+                        data-target="#deleteResourceDialog"><i class="material-icons">delete</i></button>
+                </h4>
+
+                <h6 id="resourceDesc" class="p-desc">This is a sample description for the first resource in this list
+                </h6>
+
+                <h6 id="resourceLink" class="p-desc"><a id="resourceNav" href="#"></a></h6>
+            </div>
+        </div>
+
+    </div>
 
     </div>
 
@@ -103,7 +86,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">CANCEL</button>
-                    <button type="button" id="submitEditPart" class="btn btn-primary"
+                    <button type="button" id="submitEditResource" class="btn btn-primary"
                         data-dismiss="modal">UPDATE</button>
                 </div>
             </div>
@@ -133,8 +116,22 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">CANCEL</button>
-                    <button type="button" id="submitAddPart" class="btn btn-primary"
-                        data-dismiss="modal">ADD</button>
+                    <button type="button" id="submitAddResource" class="btn btn-primary" data-dismiss="modal">ADD</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="deleteResourceDialog" tabindex="-1" role="dialog" aria-labelledby="delete resource dialog"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Are you sure you would like to delete this resource?</h5>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">CANCEL</button>
+                    <button type="button" id="submitDeleteResource" class="btn btn-primary" data-dismiss="modal">YES</button>
                 </div>
             </div>
         </div>

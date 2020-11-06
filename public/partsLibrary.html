@@ -23,9 +23,9 @@
                     <input id="partSearchText" class="form-control" type="text" placeholder="Search"
                         aria-label="Search">
                 </div>
-                <button id="partSearch" class="btn" type="button" data-toggle="modal" data-target="#editPartDialog"><i
+                <button id="partSearch" class="btn" type="button" data-toggle="modal"><i
                         class="material-icons">search</i></button></h4>
-                <div class="dropdown">
+                <div id="selectDropdown"class="dropdown">
                     <button class="btn btn-secondary dropdown-toggle" type="button" id="categoryDropdown"
                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         Category
@@ -93,7 +93,7 @@
                         <label for="inputPartLink">Product Link</label>
                         <input type="text" class="form-control" id="inputPartLink" placeholder="Link">
                     </div>
-                    <div class="dropdown">
+                    <div id = "editDropdown" class="dropdown">
                         <button class="btn btn-secondary dropdown-toggle" type="button" id="categoryDropdownEditPart"
                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Category
@@ -138,7 +138,7 @@
                         <label for="addPartLink">Product Link</label>
                         <input type="text" class="form-control" id="addPartLink" placeholder="Link">
                     </div>
-                    <div class="dropdown">
+                    <div id = "addDropdown" class="dropdown">
                         <button class="btn btn-secondary dropdown-toggle" type="button" id="categoryDropdownAddPart"
                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Category

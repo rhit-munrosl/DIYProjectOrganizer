@@ -52,6 +52,8 @@ rhit.FB_KEY_AUTHOR = "author";
 
 rhit.fbAuthManager = null;
 rhit.partsManager = null;
+rhit.resourcesManager = null;
+rhit.categoryManager = null;
 
 function htmlToElement(html) {
 	var template = document.createElement('template');
@@ -96,6 +98,10 @@ rhit.FbAuthManager = class {
 		return this._user.uid;
 	}
 
+	get email() {
+		return this._user.email;
+	}
+
 }
 
 rhit.PartsLibraryManager = class {
@@ -127,7 +133,7 @@ rhit.PartsLibraryManager = class {
 			[rhit.FB_KEY_PART_LINK]: l,
 			[rhit.FB_KEY_PART_PRICE]: p,
 			[rhit.FB_KEY_PART_CATEGORY]: c,
-		}).catch((err)=>{
+		}).catch((err) => {
 			console.log("error");
 		});
 	}
@@ -194,6 +200,11 @@ rhit.PartsLibraryController = class {
 			rhit.partsManager.addPart(name, desc, price, link, cat);
 		}
 
+		document.querySelector("#submitAddCat").onclick = (event) => {
+			let name = document.querySelector("#addCatName").value;
+			rhit.categoryManager.addCategory(name);
+		}
+
 		document.querySelector("#submitDeletePart").onclick = (event) => {
 			this.deletePart();
 		}
@@ -203,6 +214,7 @@ rhit.PartsLibraryController = class {
 		}
 
 		rhit.partsManager.beginListening(this.updateGrid.bind(this));
+		rhit.partsManager.beginListening(this.updateDropdowns.bind(this));
 	}
 
 	_createPart(part) {
@@ -234,12 +246,19 @@ rhit.PartsLibraryController = class {
 		oldList.parentElement.appendChild(newList);
 		oldList.parentElement.appendChild(document.querySelector("#partContainer"));
 
-		if (rhit.partsManager.length > 0){
+		if (rhit.partsManager.length > 0) {
 			this.updateFocus(rhit.partsManager.getPartAtIndex(0));
 			document.querySelector("#partContainer").style.display = "block";
 		} else {
 			document.querySelector("#partContainer").style.display = "none";
 		}
+	}
+
+	updateDropdowns() {
+		const containerAdd = document.querySelector("#addDropdown");
+		const containerEdit = document.querySelector("#editDropdown");
+		const containerSearch = document.querySelector("#selectDropdown");
+
 	}
 
 	updateFocus(part) {
@@ -248,7 +267,7 @@ rhit.PartsLibraryController = class {
 		document.querySelector("#partDesc").innerHTML = part.desc;
 		document.querySelector("#partNav").text = part.link;
 		document.querySelector("#partNav").href = part.link;
-		document.querySelector("#partPrice").innerHTML = "$"+part.price;
+		document.querySelector("#partPrice").innerHTML = "$" + part.price;
 		document.querySelector("#partCat").innerHTML = part.cat;
 
 		document.querySelector("#inputPartName").value = part.name;
@@ -264,12 +283,230 @@ rhit.PartsLibraryController = class {
 	}
 
 	updatePart() {
-		let newName = document.querySelector("#inputPartName").value; 
-		let newDesc = document.querySelector("#inputPartDesc").value; 
-		let newLink = document.querySelector("#inputPartPrice").value; 
-		let newPrice = document.querySelector("#inputPartLink").value; 
-		let newCat = document.querySelector("#categoryDropdownEditPart").innerHTML; 
-		rhit.partsManager.updatePart(this.focusedPart.id, newName, newDesc, newLink ,newPrice, newCat);
+		let newName = document.querySelector("#inputPartName").value;
+		let newDesc = document.querySelector("#inputPartDesc").value;
+		let newLink = document.querySelector("#inputPartPrice").value;
+		let newPrice = document.querySelector("#inputPartLink").value;
+		let newCat = document.querySelector("#categoryDropdownEditPart").innerHTML;
+		rhit.partsManager.updatePart(this.focusedPart.id, newName, newDesc, newLink, newPrice, newCat);
+	}
+}
+
+rhit.CategoryManager = class {
+	constructor(userid) {
+		this._uid = userid;
+		this._searchQuery = "";
+		this._documentSnapshots = [];
+		this._ref = firebase.firestore().collection(rhit.FB_COLLECTION_CATEGORY);
+		this._unsubscribe = null;
+	}
+
+	addCategory(n) {
+		this._ref.add({
+			[rhit.FB_KEY_CAT_NAME]: n,
+			[rhit.FB_KEY_AUTHOR]: this._uid,
+		}).catch(function (error) {
+			console.log(error);
+		});
+	}
+
+	deleteCategory(id) {
+		return this._ref.doc(id).delete();
+	}
+
+	beginListening(changeListener) {
+		let query = this._ref.orderBy(rhit.FB_KEY_CAT_NAME, "desc").limit(20).where(rhit.FB_KEY_AUTHOR, "==", this._uid);
+		this._unsubscribe = query.onSnapshot((querySnapshot) => {
+			this._documentSnapshots = querySnapshot.docs;
+			if (changeListener)
+				changeListener();
+		});
+	}
+
+	stopListenting() {
+		this._unsubscribe;
+	}
+
+	getCategoryAtIndex(index) {
+		const docSnap = this._documentSnapshots[index];
+		const category = new rhit.Category(
+			docSnap.id,
+			docSnap.get(rhit.FB_KEY_CAT_NAME),
+		);
+
+		return category;
+	}
+
+	get length() {
+		return this._documentSnapshots.length;
+	}
+
+}
+
+rhit.ResourcesManager = class {
+	constructor(userid) {
+		this._uid = userid;
+		this._searchQuery = "";
+		this._documentSnapshots = [];
+		this._ref = firebase.firestore().collection(rhit.FB_COLLECTION_RESOURCE);
+		this._unsubscribe = null;
+	}
+
+	addResource(n, d, l) {
+		this._ref.add({
+			[rhit.FB_KEY_RESOURCE_NAME]: n,
+			[rhit.FB_KEY_RESOURCE_DESC]: d,
+			[rhit.FB_KEY_RESOURCE_CONTENT]: l,
+			[rhit.FB_KEY_AUTHOR]: this._uid,
+		}).catch(function (error) {
+			console.log(error);
+		});
+	}
+
+	updateResource(id, n, d, l) {
+		this._ref.doc(id).update({
+			[rhit.FB_KEY_RESOURCE_NAME]: n,
+			[rhit.FB_KEY_RESOURCE_DESC]: d,
+			[rhit.FB_KEY_RESOURCE_CONTENT]: l,
+		}).catch((err) => {
+			console.log("error");
+		});
+	}
+
+	deleteResource(id) {
+		return this._ref.doc(id).delete();
+	}
+
+	beginListening(changeListener) {
+		let query = this._ref.orderBy(rhit.FB_KEY_RESOURCE_NAME, "desc").limit(20).where(rhit.FB_KEY_AUTHOR, "==", this._uid);
+		this._unsubscribe = query.onSnapshot((querySnapshot) => {
+			this._documentSnapshots = querySnapshot.docs;
+			if (changeListener)
+				changeListener();
+		});
+	}
+
+	stopListenting() {
+		this._unsubscribe;
+	}
+
+	getResourceAtIndex(index) {
+		const docSnap = this._documentSnapshots[index];
+		const res = new rhit.Resource(
+			docSnap.id,
+			docSnap.get(rhit.FB_KEY_RESOURCE_NAME),
+			docSnap.get(rhit.FB_KEY_RESOURCE_DESC),
+			docSnap.get(rhit.FB_KEY_RESOURCE_CONTENT),
+		);
+
+		return res;
+	}
+
+	get length() {
+		return this._documentSnapshots.length;
+	}
+
+}
+
+rhit.ResourcesController = class {
+
+	constructor() {
+
+		this.focusedResource = null;
+
+		//User buttons
+		document.querySelector("#submitAddResource").onclick = (event) => {
+			let name = document.querySelector("#addResourceName").value;
+			let desc = document.querySelector("#addResourceDesc").value;
+			let content = document.querySelector("#addResourceLink").value;
+			rhit.resourcesManager.addResource(name, desc, content);
+		}
+
+		document.querySelector("#submitDeleteResource").onclick = (event) => {
+			this.deleteResource();
+		}
+
+		document.querySelector("#submitEditResource").onclick = (event) => {
+			this.updateResource();
+		}
+
+		rhit.resourcesManager.beginListening(this.updateList.bind(this));
+	}
+
+	_createResource(res) {
+		return htmlToElement(`<div class="resource">
+		<h4 class="p-name">${res.name}</h4>
+		<h6 class="p-desc">${res.desc}</h6>
+		<hr>
+		<h6 class="p-desc"><a href = "${res.content}">${res.content}</a></h6>
+	  </div>`);
+	}
+
+	updateList() {
+		const container = document.querySelector("#resourceInfo");
+		const newList = htmlToElement('<div id="resourcesList" class="grid-container grid-child"></div>');
+		for (let i = 0; i < rhit.resourcesManager.length; i++) {
+			const resource = rhit.resourcesManager.getResourceAtIndex(i);
+			const newCard = this._createResource(resource);
+			newCard.onclick = (event) => {
+				this.updateFocus(resource);
+			};
+			newList.appendChild(newCard);
+		}
+
+		const oldList = document.querySelector("#resourcesList");
+		container.appendChild(oldList);
+		oldList.removeAttribute("id");
+		oldList.hidden = true;
+
+		oldList.parentElement.appendChild(newList);
+		oldList.parentElement.appendChild(document.querySelector("#resourceContainer"));
+
+		if (rhit.resourcesManager.length > 0) {
+			this.updateFocus(rhit.resourcesManager.getResourceAtIndex(0));
+			document.querySelector("#resourceContainer").style.display = "block";
+		} else {
+			document.querySelector("#resourceContainer").style.display = "none";
+		}
+	}
+
+	updateFocus(res) {
+		this.focusedResource = res;
+		document.querySelector("#resourceName").innerHTML = res.name;
+		document.querySelector("#resourceDesc").innerHTML = res.desc;
+		document.querySelector("#resourceNav").text = res.content;
+		document.querySelector("#resourceNav").href = res.content;
+
+		document.querySelector("#inputResourceName").value = res.name;
+		document.querySelector("#inputResourceDesc").value = res.desc;
+		document.querySelector("#inputResourceLink").value = res.content;
+	}
+
+	deleteResource() {
+		rhit.resourcesManager.deleteResource(this.focusedResource.id);
+	}
+
+	updateResource() {
+		let newName = document.querySelector("#inputResourceName").value;
+		let newDesc = document.querySelector("#inputResourceDesc").value;
+		let newContent = document.querySelector("#inputResourceLink").value;
+		rhit.resourcesManager.updateResource(this.focusedResource.id, newName, newDesc, newContent);
+	}
+}
+
+rhit.Resource = class {
+	constructor(id, name, desc, content) {
+		this.id = id;
+		this.name = name;
+		this.desc = desc;
+		this.content = content;
+	}
+}
+
+rhit.Category = class {
+	constructor(id, name){
+		this.id = id;
+		this.name = name;
 	}
 }
 
@@ -318,6 +555,7 @@ rhit.IndexPageController = class {
 		if (rhit.fbAuthManager.isSignedIn) {
 			document.querySelector("#loggedInPage").style.display = "block";
 			document.querySelector("#loginPage").style.display = "none";
+			document.querySelector("#homeUserName").innerHTML = rhit.fbAuthManager.email;
 		} else {
 			document.querySelector("#loginBtn").onclick = (event) => {
 				rhit.fbAuthManager.signIn();
@@ -352,7 +590,12 @@ rhit.initPage = () => {
 	}
 	if (document.querySelector("#partsPage")) {
 		rhit.partsManager = new rhit.PartsLibraryManager(rhit.fbAuthManager.uid);
+		rhit.categoryManager = new rhit.CategoryManager(rhit.fbAuthManager.uid);
 		new rhit.PartsLibraryController();
+	}
+	if (document.querySelector("#resourcePage")) {
+		rhit.resourcesManager = new rhit.ResourcesManager(rhit.fbAuthManager.uid);
+		new rhit.ResourcesController();
 	}
 }
 
