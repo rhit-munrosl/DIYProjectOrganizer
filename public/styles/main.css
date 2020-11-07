@@ -89,7 +89,7 @@ a.divLink{
 }
 
 #categoryDropdown, #categoryDropdownEditPart, #partAdd,
- #addCat, #categoryDropdownAddPart, #partAddProj, #resAddProj {
+ #addCat, #categoryDropdownAddPart, #partAddProj, #resAddProj, #clearSearch {
     color:white;
     background-color: var(--main-color);
     right: 0px;

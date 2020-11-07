@@ -142,8 +142,10 @@ rhit.PartsLibraryManager = class {
 		return this._ref.doc(id).delete();
 	}
 
-	beginListening(changeListener) {
+	beginListening(category, changeListener) {
 		let query = this._ref.orderBy(rhit.FB_KEY_PART_NAME, "desc").limit(20).where(rhit.FB_KEY_AUTHOR, "==", this._uid);
+		if (category)
+			query = query.where(rhit.FB_KEY_PART_CATEGORY, "==", category);
 		this._unsubscribe = query.onSnapshot((querySnapshot) => {
 			this._documentSnapshots = querySnapshot.docs;
 			if (changeListener)
@@ -182,14 +184,8 @@ rhit.PartsLibraryController = class {
 	constructor() {
 
 		this.focusedPart = null;
+		this.selectedCat;
 
-		$('#addCatList li').on('click', function () {
-			document.querySelector('#categoryDropdownAddPart').innerHTML = $(this).text();
-		});
-
-		$('#editCatList li').on('click', function () {
-			document.querySelector('#categoryDropdownEditPart').innerHTML = $(this).text();
-		});
 		//User buttons
 		document.querySelector("#submitAddPart").onclick = (event) => {
 			let name = document.querySelector("#addPartName").value;
@@ -203,6 +199,7 @@ rhit.PartsLibraryController = class {
 		document.querySelector("#submitAddCat").onclick = (event) => {
 			let name = document.querySelector("#addCatName").value;
 			rhit.categoryManager.addCategory(name);
+			window.location.reload();
 		}
 
 		document.querySelector("#submitDeletePart").onclick = (event) => {
@@ -211,10 +208,23 @@ rhit.PartsLibraryController = class {
 
 		document.querySelector("#submitEditPart").onclick = (event) => {
 			this.updatePart();
+
 		}
 
-		rhit.partsManager.beginListening(this.updateGrid.bind(this));
-		rhit.partsManager.beginListening(this.updateDropdowns.bind(this));
+		document.querySelector("#clearSearch").onclick = (event) => {
+			this.selectedCat = "";
+			window.location.href = `/partsLibrary.html`;
+		}
+
+		const queryString = window.location.search;
+		const urlParams = new URLSearchParams(queryString);
+		if(urlParams.get("cat")){
+			this.selectedCat = urlParams.get("cat");
+			document.querySelector('#categoryDropdown').innerHTML = this.selectedCat;
+		}
+
+		rhit.partsManager.beginListening(this.selectedCat, this.updateGrid.bind(this));
+		rhit.categoryManager.beginListening(this.updateDropdowns.bind(this));
 	}
 
 	_createPart(part) {
@@ -255,9 +265,57 @@ rhit.PartsLibraryController = class {
 	}
 
 	updateDropdowns() {
+		
 		const containerAdd = document.querySelector("#addDropdown");
 		const containerEdit = document.querySelector("#editDropdown");
 		const containerSearch = document.querySelector("#selectDropdown");
+
+		const newAddList = htmlToElement('<ul id="addCatList" class="dropdown-menu" aria-labelledby="dropdownMenuButton"></ul>');
+		const newEditList = htmlToElement('<ul id="editCatList" class="dropdown-menu" aria-labelledby="dropdownMenuButton"></ul>');
+		const newSelectList = htmlToElement('<ul id="selectCat" class="dropdown-menu" aria-labelledby="dropdownMenuButton"></ul>');
+
+		const addBtn = htmlToElement('<a id="addCat" class="dropdown-item" data-toggle="modal" href="#" data-target="#addCatDialog"><i class="material-icons">add</i></a>');
+		newSelectList.appendChild(addBtn);
+
+		for(let i = 0; i < rhit.categoryManager.length; i++){
+			const cat = rhit.categoryManager.getCategoryAtIndex(i);
+			const newCatSearch = htmlToElement(`<li class="dropdown-item catName">${cat.name}</li>`);
+			const newCatModalAdd = htmlToElement(`<li class="dropdown-item catName">${cat.name}</li>`);
+			const newCatModalEdit = htmlToElement(`<li class="dropdown-item catName">${cat.name}</li>`);
+			newSelectList.appendChild(newCatSearch);
+			newAddList.appendChild(newCatModalEdit);
+			newEditList.appendChild(newCatModalAdd);
+		}
+
+		const oldAddList = document.querySelector("#addCatList");
+		const oldEditList = document.querySelector("#editCatList");
+		const oldSelectList = document.querySelector("#selectCat");
+
+		containerAdd.appendChild(oldAddList);
+		containerEdit.appendChild(oldEditList);
+		containerSearch.appendChild(oldSelectList);
+
+		oldAddList.parentElement.appendChild(newAddList);
+		oldEditList.parentElement.appendChild(newEditList);
+		oldSelectList.parentElement.appendChild(newSelectList);
+		
+		oldAddList.remove();
+		oldEditList.remove();
+		oldSelectList.remove();
+
+		$('#addCatList li').on('click', function () {
+			document.querySelector('#categoryDropdownAddPart').innerHTML = $(this).text();
+		});
+
+		$('#editCatList li').on('click', function () {
+			document.querySelector('#categoryDropdownEditPart').innerHTML = $(this).text();
+		});
+
+		$('#selectCat li').on('click', function () {
+			window.location.href = `/partsLibrary.html?cat=${$(this).text()}`;
+		});
+
+		//
 
 	}
 
@@ -576,7 +634,7 @@ function closeNav() {
 
 rhit.initPage = () => {
 	const queryString = window.location.search;
-	const urlParams = new URLSearchParams(queryString)
+	const urlParams = new URLSearchParams(queryString);
 	if (document.querySelector("#mySidenav")) {
 		document.querySelector("#signOutBtn").onclick = (event) => {
 			rhit.fbAuthManager.signOut();

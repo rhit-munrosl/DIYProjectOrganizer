@@ -25,19 +25,16 @@
                 </div>
                 <button id="partSearch" class="btn" type="button" data-toggle="modal"><i
                         class="material-icons">search</i></button></h4>
-                <div id="selectDropdown"class="dropdown">
+                <div id="selectDropdown" class="dropdown">
                     <button class="btn btn-secondary dropdown-toggle" type="button" id="categoryDropdown"
                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         Category
                     </button>
-                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                        <a class="dropdown-item" href="#">Motors</a>
-                        <a class="dropdown-item" href="#">Wires</a>
-                        <a class="dropdown-item" href="#">Bearings</a>
-                        <a id="addCat" class="dropdown-item" data-toggle="modal" href="#" data-target="#addCatDialog"><i
-                                class="material-icons">add</i></a>
-                    </div>
+                    <ul id="selectCat" class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        
+                    </ul>
                 </div>
+                <button id="clearSearch" class="btn btn-secondary" type="button">Clear Search</button>
                 <button id="partAdd" class="btn btn-secondary" type="button" data-toggle="modal"
                     data-target="#addPartDialog">Add Part</button>
             </div>
@@ -93,15 +90,13 @@
                         <label for="inputPartLink">Product Link</label>
                         <input type="text" class="form-control" id="inputPartLink" placeholder="Link">
                     </div>
-                    <div id = "editDropdown" class="dropdown">
+                    <div id="editDropdown" class="dropdown">
                         <button class="btn btn-secondary dropdown-toggle" type="button" id="categoryDropdownEditPart"
                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Category
                         </button>
                         <ul id="editCatList" class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                            <li class="dropdown-item">Motors</a></li>
-                            <li class="dropdown-item">Wires</a></li>
-                            <li class="dropdown-item">Bearings</a></li>
+
                         </ul>
                     </div>
                 </div>
@@ -138,15 +133,13 @@
                         <label for="addPartLink">Product Link</label>
                         <input type="text" class="form-control" id="addPartLink" placeholder="Link">
                     </div>
-                    <div id = "addDropdown" class="dropdown">
+                    <div id="addDropdown" class="dropdown">
                         <button class="btn btn-secondary dropdown-toggle" type="button" id="categoryDropdownAddPart"
                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Category
                         </button>
                         <ul id="addCatList" class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                            <li class="dropdown-item">Motors</a></li>
-                            <li class="dropdown-item">Wires</a></li>
-                            <li class="dropdown-item">Bearings</a></li>
+
                         </ul>
                     </div>
                 </div>
@@ -167,7 +160,8 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">CANCEL</button>
-                    <button type="button" id="submitDeletePart" class="btn btn-primary" data-dismiss="modal">YES</button>
+                    <button type="button" id="submitDeletePart" class="btn btn-primary"
+                        data-dismiss="modal">YES</button>
                 </div>
             </div>
         </div>
