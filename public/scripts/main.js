@@ -42,6 +42,7 @@ rhit.FB_KEY_PROJECT_NAME = "name";
 rhit.FB_KEY_PROJECT_DESC = "description";
 rhit.FB_KEY_PROJECT_RESOURCES = "resources";
 rhit.FB_KEY_PROJECT_PARTS = "components";
+rhit.FB_KEY_PROJECT_COST = "totalPrice";
 
 rhit.FB_COLLECTION_RESOURCE = "Resource";
 rhit.FB_KEY_RESOURCE_CONTENT = "content";
@@ -54,6 +55,7 @@ rhit.fbAuthManager = null;
 rhit.partsManager = null;
 rhit.resourcesManager = null;
 rhit.categoryManager = null;
+rhit.projectsManager = null;
 
 function htmlToElement(html) {
 	var template = document.createElement('template');
@@ -552,6 +554,150 @@ rhit.ResourcesController = class {
 	}
 }
 
+rhit.ProjectsManager = class {
+	constructor(userid) {
+		this._uid = userid;
+		this._searchQuery = "";
+		this._documentSnapshots = [];
+		this._ref = firebase.firestore().collection(rhit.FB_COLLECTION_PROJECT);
+		this._unsubscribe = null;
+	}
+
+	addProject(n, d, c, p, r) {
+		this._ref.add({
+			[rhit.FB_KEY_PROJECT_NAME]: n,
+			[rhit.FB_KEY_PROJECT_DESC]: d,
+			[rhit.FB_KEY_PROJECT_COST]: c,
+			[rhit.FB_KEY_PROJECT_PARTS]: p,
+			[rhit.FB_KEY_PROJECT_RESOURCES]: r,
+			[rhit.FB_KEY_AUTHOR]: this._uid,
+		}).catch(function (error) {
+			console.log(error);
+		});
+	}
+
+	updateProject(id, n, d) {
+		this._ref.doc(id).update({
+			[rhit.FB_KEY_PROJECT_NAME]: n,
+			[rhit.FB_KEY_PROJECT_DESC]: d,
+		}).catch((err) => {
+			console.log("error");
+		});
+	}
+
+	deleteProject(id) {
+		return this._ref.doc(id).delete();
+	}
+
+	beginListening(changeListener) {
+		let query = this._ref.orderBy(rhit.FB_KEY_PROJECT_NAME, "desc").limit(20).where(rhit.FB_KEY_AUTHOR, "==", this._uid);
+		this._unsubscribe = query.onSnapshot((querySnapshot) => {
+			this._documentSnapshots = querySnapshot.docs;
+			if (changeListener)
+				changeListener();
+		});
+	}
+
+	stopListenting() {
+		this._unsubscribe;
+	}
+
+	getProjectAtIndex(index) {
+		const docSnap = this._documentSnapshots[index];
+		const project = new rhit.Project(
+			docSnap.id,
+			docSnap.get(rhit.FB_KEY_PROJECT_NAME),
+			docSnap.get(rhit.FB_KEY_PROJECT_DESC),
+			docSnap.get(rhit.FB_KEY_PROJECT_COST),
+			docSnap.get(rhit.FB_KEY_PROJECT_PARTS),
+			docSnap.get(rhit.FB_KEY_PROJECT_RESOURCES),
+		);
+
+		return project;
+	}
+
+	get length() {
+		return this._documentSnapshots.length;
+	}
+
+}
+
+rhit.ProjectsController = class {
+
+	constructor() {
+
+		//this.focusedResource = null;
+
+		//User buttons
+		document.querySelector("#submitAddProj").onclick = (event) => {
+			let name = document.querySelector("#addProjName").value;
+			let desc = document.querySelector("#addProjDesc").value;
+			let cost = 0;
+			let parts = [];
+			let resources = [];
+			rhit.projectsManager.addProject(name, desc, cost, parts, resources);
+		}
+
+		rhit.projectsManager.beginListening(this.updateList.bind(this));
+	}
+
+	_createProj(project) {
+		return htmlToElement(`<div class="project">
+		<h3>${project.name}</h3>
+		<br>
+		<h5 class="p-desc">${project.desc}</h6>
+		<br>
+		<h5 class="p-price">$${project.cost}</h5>
+		<h5 class="p-price">Components: ${project.parts.length}</h5>
+		<h5 class="p-price">Resources: ${project.resources.length}</h5>
+	  </div>`);
+	}
+
+	updateList() {
+		const container = document.querySelector("#projectsContainer");
+		const newList = htmlToElement('<div id="projectsGrid"></div>');
+		for (let i = 0; i < rhit.projectsManager.length; i++) {
+			const project = rhit.projectsManager.getProjectAtIndex(i);
+			const newCard = this._createProj(project);
+			newCard.onclick = (event) => {
+				//this.updateFocus(resource);
+			};
+			newList.appendChild(newCard);
+		}
+
+		const oldList = document.querySelector("#projectsGrid");
+		container.appendChild(oldList);
+		oldList.removeAttribute("id");
+		oldList.hidden = true;
+
+		oldList.parentElement.appendChild(newList);
+	}
+
+/*
+	deleteResource() {
+		rhit.resourcesManager.deleteResource(this.focusedResource.id);
+	}
+
+	updateResource() {
+		let newName = document.querySelector("#inputResourceName").value;
+		let newDesc = document.querySelector("#inputResourceDesc").value;
+		let newContent = document.querySelector("#inputResourceLink").value;
+		rhit.resourcesManager.updateResource(this.focusedResource.id, newName, newDesc, newContent);
+	}
+	*/
+}
+
+rhit.Project = class {
+	constructor(id, name, desc, cost, parts, resources){
+		this.id = id;
+		this.name = name;
+		this.desc = desc;
+		this.cost = cost;
+		this.parts = parts;
+		this.resources = resources;
+	}
+}
+
 rhit.Resource = class {
 	constructor(id, name, desc, content) {
 		this.id = id;
@@ -654,6 +800,10 @@ rhit.initPage = () => {
 	if (document.querySelector("#resourcePage")) {
 		rhit.resourcesManager = new rhit.ResourcesManager(rhit.fbAuthManager.uid);
 		new rhit.ResourcesController();
+	}
+	if (document.querySelector("#projectsPage")){
+		rhit.projectsManager = new rhit.ProjectsManager(rhit.fbAuthManager.uid);
+		new rhit.ProjectsController();
 	}
 }
 
