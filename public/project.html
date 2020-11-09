@@ -15,19 +15,20 @@
     <div id="includedContent"></div>
     <div id="projectPage" class="container page-container">
         <div id="projectContainer">
-            <h1>Example Project 1</h1>
+            <h1 id="projName"></h1>
             <hr>
             <br>
 
             <div id="projectInfo">
                 <div id="projectContainer" class="grid-child">
+
+                    <h6 id="projDesc" class="p-desc"></h6>
                     <button id="projectEdit" class="btn" type="button" data-toggle="modal"
                         data-target="#editProjectDialog"><i class="material-icons">edit</i></button>
-                    <h6 id="projDesc" class="p-desc">This is a sample description for the first part in this list
-                    </h6>
-
+                    <button id="projectDelete" class="btn" type="button" data-toggle="modal"
+                        data-target="#deleteProjectDialog"><i class="material-icons">delete</i></button>
                     <hr>
-                    <h6 id="projPrice" class="p-price">$20.00</h6>
+                    <h6 id="projPrice" class="p-price"></h6>
                     <br>
                     <button id="partAddProj" class="btn btn-secondary" type="button">Add Part</button>
                     <button id="resAddProj" class="btn btn-secondary" type="button">Add Resource</button>
@@ -149,13 +150,13 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 id = "partName" class="modal-title">Part Name</h5>
+                    <h5 id="partName" class="modal-title">Part Name</h5>
                 </div>
                 <div class="modal-body">
-                    <p id = "partDesc">Part Description</p>
-                    <p id = "partPrice">Part Price</p>
-                    <p id = "partLink">https://thisisthelink.com</p>
-                    <p id = "partCategory">Sample Category</p>
+                    <p id="partDesc">Part Description</p>
+                    <p id="partPrice">Part Price</p>
+                    <p id="partLink">https://thisisthelink.com</p>
+                    <p id="partCategory">Sample Category</p>
                     <div class="form-check">
                         <input type="checkbox" class="form-check-input" id="inputPartPurchased">
                         <label for="inputPartPurchased">Purchased</label>
@@ -174,7 +175,23 @@
         </div>
     </div>
 
-    
+    <div class="modal fade" id="deleteProjectDialog" tabindex="-1" role="dialog" aria-labelledby="delete project dialog"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Are you sure you would like to delete this project?</h5>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">CANCEL</button>
+                    <button type="button" id="submitDeleteProject" class="btn btn-primary"
+                        data-dismiss="modal">YES</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
 
 
     <script src="scripts/jquery.min.js"></script>

@@ -56,6 +56,7 @@ rhit.partsManager = null;
 rhit.resourcesManager = null;
 rhit.categoryManager = null;
 rhit.projectsManager = null;
+rhit.projectManager = null;
 
 function htmlToElement(html) {
 	var template = document.createElement('template');
@@ -598,6 +599,15 @@ rhit.ProjectsManager = class {
 		});
 	}
 
+	beginListeningHome(changeListener) {
+		let query = this._ref.orderBy(rhit.FB_KEY_PROJECT_NAME, "desc").limit(4).where(rhit.FB_KEY_AUTHOR, "==", this._uid);
+		this._unsubscribe = query.onSnapshot((querySnapshot) => {
+			this._documentSnapshots = querySnapshot.docs;
+			if (changeListener)
+				changeListener();
+		});
+	}
+
 	stopListenting() {
 		this._unsubscribe;
 	}
@@ -625,10 +635,6 @@ rhit.ProjectsManager = class {
 rhit.ProjectsController = class {
 
 	constructor() {
-
-		//this.focusedResource = null;
-
-		//User buttons
 		document.querySelector("#submitAddProj").onclick = (event) => {
 			let name = document.querySelector("#addProjName").value;
 			let desc = document.querySelector("#addProjDesc").value;
@@ -660,7 +666,7 @@ rhit.ProjectsController = class {
 			const project = rhit.projectsManager.getProjectAtIndex(i);
 			const newCard = this._createProj(project);
 			newCard.onclick = (event) => {
-				//this.updateFocus(resource);
+				window.location.href = `/project.html?id=${project.id}`;
 			};
 			newList.appendChild(newCard);
 		}
@@ -672,19 +678,102 @@ rhit.ProjectsController = class {
 
 		oldList.parentElement.appendChild(newList);
 	}
+}
 
-/*
-	deleteResource() {
-		rhit.resourcesManager.deleteResource(this.focusedResource.id);
+rhit.ProjectDetailManager = class {
+	constructor(id){
+		this._documentSnapshot = {};
+		this._unsubscribe = null;
+		this._ref = firebase.firestore().collection(rhit.FB_COLLECTION_PROJECT).doc(id);
 	}
 
-	updateResource() {
-		let newName = document.querySelector("#inputResourceName").value;
-		let newDesc = document.querySelector("#inputResourceDesc").value;
-		let newContent = document.querySelector("#inputResourceLink").value;
-		rhit.resourcesManager.updateResource(this.focusedResource.id, newName, newDesc, newContent);
+	beingListening(changeListener){
+		this._ref.onSnapshot((doc) =>{
+			if(doc.exists){
+				this._documentSnapshot = doc;
+				changeListener();
+			} else {
+				console.log("does not exist")
+			}
+		});
 	}
-	*/
+
+	stopListening(){
+		this._unsubscribe();
+	}
+
+	updateProject(name, desc) {
+		this._ref.update({
+			[rhit.FB_KEY_PROJECT_NAME]: name,
+			[rhit.FB_KEY_PROJECT_DESC]: desc,
+		}).
+		then(function () {
+			console.log("Document was updated!");
+		}).
+		catch(function (error) {
+			console.error("Error adding document");
+		});
+	}
+
+	delete(){
+		return this._ref.delete();
+	}
+
+	get name (){
+		return this._documentSnapshot.get(rhit.FB_KEY_PROJECT_NAME);
+	}
+
+	get desc (){
+		return this._documentSnapshot.get(rhit.FB_KEY_PROJECT_DESC);
+	}
+
+	get cost (){
+		return this._documentSnapshot.get(rhit.FB_KEY_PROJECT_COST);
+	}
+
+	get parts (){
+		return this._documentSnapshot.get(rhit.FB_KEY_PROJECT_PARTS);
+	}
+
+	get resources (){
+		return this._documentSnapshot.get(rhit.FB_KEY_PROJECT_RESOURCES);
+	}
+
+	get author (){
+		return this._documentSnapshot.get(rhit.FB_KEY_AUTHOR);
+	}
+}
+
+rhit.ProjectDetailController = class {
+	constructor () {
+		document.querySelector("#submitEditProject").addEventListener("click", (event) => {
+			const name = document.querySelector("#inputProjectName").value;
+			const desc = document.querySelector("#inputProjectDesc").value;
+			rhit.projectManager.updateProject(name, desc);
+		});
+
+		document.querySelector("#submitDeleteProject").addEventListener("click", (event) => {
+			rhit.projectManager.delete().then(function(){
+				console.log("Deleted!");
+				window.location.href = "/projects.html";
+			}).catch(function(error){
+				
+			});;
+		});
+
+		rhit.projectManager.beingListening(this.updateView.bind(this));
+	}
+
+	updateView() {
+		if(rhit.projectManager.author != rhit.fbAuthManager.uid){
+			window.location.href = "/projects.html";
+		}
+		document.querySelector("#projName").innerHTML = rhit.projectManager.name;
+		document.querySelector("#projDesc").innerHTML = rhit.projectManager.desc;
+		document.querySelector("#projPrice").innerHTML = "$"+rhit.projectManager.cost;
+		document.querySelector("#inputProjectName").value = rhit.projectManager.name;
+		document.querySelector("#inputProjectDesc").value = rhit.projectManager.desc;
+	}
 }
 
 rhit.Project = class {
@@ -760,6 +849,7 @@ rhit.IndexPageController = class {
 			document.querySelector("#loggedInPage").style.display = "block";
 			document.querySelector("#loginPage").style.display = "none";
 			document.querySelector("#homeUserName").innerHTML = rhit.fbAuthManager.email;
+			this.updateList();
 		} else {
 			document.querySelector("#loginBtn").onclick = (event) => {
 				rhit.fbAuthManager.signIn();
@@ -767,6 +857,40 @@ rhit.IndexPageController = class {
 			document.querySelector("#loginPage").style.display = "block";
 			document.querySelector("#loggedInPage").style.display = "none";
 		}
+
+		rhit.projectsManager.beginListeningHome(this.updateList.bind(this))
+	}
+
+	_createProj(project) {
+		return htmlToElement(`<div class="project">
+		<h3>${project.name}</h3>
+		<br>
+		<h5 class="p-desc">${project.desc}</h6>
+		<br>
+		<h5 class="p-price">$${project.cost}</h5>
+		<h5 class="p-price">Components: ${project.parts.length}</h5>
+		<h5 class="p-price">Resources: ${project.resources.length}</h5>
+	  </div>`);
+	}
+
+	updateList() {
+		const container = document.querySelector("#projectsContainer");
+		const newList = htmlToElement('<div id="projectsGridHome"></div>');
+		for (let i = 0; i < rhit.projectsManager.length; i++) {
+			const project = rhit.projectsManager.getProjectAtIndex(i);
+			const newCard = this._createProj(project);
+			newCard.onclick = (event) => {
+				window.location.href = `/project.html?id=${project.id}`;
+			};
+			newList.appendChild(newCard);
+		}
+
+		const oldList = document.querySelector("#projectsGridHome");
+		container.appendChild(oldList);
+		oldList.removeAttribute("id");
+		oldList.hidden = true;
+
+		oldList.parentElement.appendChild(newList);
 	}
 }
 
@@ -790,6 +914,7 @@ rhit.initPage = () => {
 		new rhit.CreateAccountController();
 	}
 	if (document.querySelector("#mainPage")) {
+		rhit.projectsManager = new rhit.ProjectsManager(rhit.fbAuthManager.uid);
 		new rhit.IndexPageController();
 	}
 	if (document.querySelector("#partsPage")) {
@@ -804,6 +929,10 @@ rhit.initPage = () => {
 	if (document.querySelector("#projectsPage")){
 		rhit.projectsManager = new rhit.ProjectsManager(rhit.fbAuthManager.uid);
 		new rhit.ProjectsController();
+	}
+	if(document.querySelector("#projectPage")){
+		rhit.projectManager = new rhit.ProjectDetailManager(urlParams.get("id"));
+		new rhit.ProjectDetailController();
 	}
 }
 
