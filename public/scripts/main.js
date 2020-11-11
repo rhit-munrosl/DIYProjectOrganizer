@@ -240,10 +240,11 @@ rhit.PartsLibraryController = class {
 		document.querySelector("#submitAddPart").onclick = (event) => {
 			let name = document.querySelector("#addPartName").value;
 			let desc = document.querySelector("#addPartDesc").value;
-			let price = document.querySelector("#addPartPrice").value;
+			let price = parseFloat(document.querySelector("#addPartPrice").value);
 			let link = document.querySelector("#addPartLink").value;
 			let cat = document.querySelector("#categoryDropdownAddPart").innerHTML;
-			rhit.partsManager.addPart(name, desc, price, link, cat);
+		
+			rhit.partsManager.addPart(name, desc, price.toFixed(2), link, cat);
 		}
 
 		document.querySelector("#submitAddCat").onclick = (event) => {
@@ -282,7 +283,7 @@ rhit.PartsLibraryController = class {
 
 		rhit.partsManager.beginListening(this.selectedCat, this.updateGrid.bind(this));
 		rhit.categoryManager.beginListening(this.updateDropdowns.bind(this));
-		if(rhit.projectManager)
+		if (rhit.projectManager)
 			rhit.projectManager.beginListening();
 	}
 
@@ -304,7 +305,7 @@ rhit.PartsLibraryController = class {
 			const part = rhit.partsManager.getPartAtIndex(i);
 			const newCard = this._createPart(part);
 
-			if(urlParams.get("action")){
+			if (urlParams.get("action")) {
 				let retId = urlParams.get("id");
 				newCard.onclick = (event) => {
 					rhit.projectManager.setPartsList(part.id, retId);
@@ -413,10 +414,10 @@ rhit.PartsLibraryController = class {
 	updatePart() {
 		let newName = document.querySelector("#inputPartName").value;
 		let newDesc = document.querySelector("#inputPartDesc").value;
-		let newLink = document.querySelector("#inputPartPrice").value;
-		let newPrice = document.querySelector("#inputPartLink").value;
+		let newLink = document.querySelector("#inputPartLink").value;
+		let newPrice = parseFloat(document.querySelector("#inputPartPrice").value);
 		let newCat = document.querySelector("#categoryDropdownEditPart").innerHTML;
-		rhit.partsManager.updatePart(this.focusedPart.id, newName, newDesc, newLink, newPrice, newCat);
+		rhit.partsManager.updatePart(this.focusedPart.id, newName, newDesc, newPrice.toFixed(2),newLink, newCat);
 	}
 }
 
@@ -570,7 +571,7 @@ rhit.ResourcesController = class {
 		}
 
 		rhit.resourcesManager.beginListening(this.updateList.bind(this));
-		if(rhit.projectManager)
+		if (rhit.projectManager)
 			rhit.projectManager.beginListening();
 	}
 
@@ -592,7 +593,7 @@ rhit.ResourcesController = class {
 			const resource = rhit.resourcesManager.getResourceAtIndex(i);
 			const newCard = this._createResource(resource);
 
-			if(urlParams.get("action")){
+			if (urlParams.get("action")) {
 				let retId = urlParams.get("id");
 				newCard.onclick = (event) => {
 					rhit.projectManager.setResourceList(resource.id, retId);
@@ -603,7 +604,7 @@ rhit.ResourcesController = class {
 				};
 			}
 
-			
+
 			newList.appendChild(newCard);
 		}
 
@@ -784,7 +785,7 @@ rhit.ProjectDetailManager = class {
 		this._ref.onSnapshot((doc) => {
 			if (doc.exists) {
 				this._documentSnapshot = doc;
-				if(changeListener)
+				if (changeListener)
 					changeListener();
 			} else {
 				console.log("does not exist")
@@ -845,14 +846,14 @@ rhit.ProjectDetailManager = class {
 		}).
 		then(function () {
 			console.log("Document was updated!");
-			window.location.href = "/project.html?id="+retId;
+			window.location.href = "/project.html?id=" + retId;
 		}).
 		catch(function (error) {
 			console.error("Error adding document");
 		});
 	}
 
-	removeResource(i){
+	removeResource(i) {
 		let reslist = this.resources;
 		reslist.splice(i, 1);
 		this._ref.update({
@@ -875,7 +876,7 @@ rhit.ProjectDetailManager = class {
 		}).
 		then(function () {
 			console.log("Document was updated!");
-			window.location.href = "/project.html?id="+retId;
+			window.location.href = "/project.html?id=" + retId;
 		}).
 		catch(function (error) {
 			console.error("Error adding document");
@@ -894,7 +895,7 @@ rhit.ProjectDetailManager = class {
 		});
 	}
 
-	removePart(i){
+	removePart(i) {
 		let partslist = this.parts;
 		partslist.splice(i, 1);
 		this._ref.update({
@@ -929,11 +930,11 @@ rhit.ProjectDetailController = class {
 		});
 
 		document.querySelector("#resAddProj").addEventListener("click", (event) => {
-			window.location.href = "/resources.html?action=adding&id="+rhit.projectManager.id;
+			window.location.href = "/resources.html?action=adding&id=" + rhit.projectManager.id;
 		});
 
 		document.querySelector("#partAddProj").addEventListener("click", (event) => {
-			window.location.href = "/partsLibrary.html?action=adding&id="+rhit.projectManager.id;
+			window.location.href = "/partsLibrary.html?action=adding&id=" + rhit.projectManager.id;
 		});
 
 		rhit.projectManager.beginListening(this.updateView.bind(this));
@@ -981,7 +982,7 @@ rhit.ProjectDetailController = class {
 				if (rhit.projectManager.resources[i] == rhit.resourcesManager.getResourceAtIndex(j).id) {
 					let resourceX = rhit.resourcesManager.getResourceAtIndex(j);
 					const newCard = this._createResource(resourceX);
-					newCard.querySelector("#"+resourceX.id).onclick = (event) => {
+					newCard.querySelector("#" + resourceX.id).onclick = (event) => {
 						rhit.projectManager.removeResource(i);
 					};
 					newList.appendChild(newCard);
@@ -1006,6 +1007,7 @@ rhit.ProjectDetailController = class {
 				if (rhit.projectManager.parts[i] == rhit.partsManager.getPartAtIndex(j).id) {
 					let partX = rhit.partsManager.getPartAtIndex(j);
 					cost += parseFloat(partX.price);
+					
 					const newCard = this._createPart(partX);
 					newCard.onclick = (event) => {
 						document.querySelector("#partName").innerHTML = partX.name;
@@ -1015,14 +1017,14 @@ rhit.ProjectDetailController = class {
 						document.querySelector("#partCategory").innerHTML = partX.cat;
 						document.querySelector("#deleteButton").onclick = (event) => {
 							rhit.projectManager.removePart(i);
-							
+
 						}
 					};
 					newList.appendChild(newCard);
 				}
 			}
 		}
-		rhit.projectManager.updateCost(cost);
+		rhit.projectManager.updateCost(cost.toFixed(2));
 
 		const oldList = document.querySelector("#partsList");
 		container.appendChild(oldList);
@@ -1076,9 +1078,10 @@ rhit.IndexPageController = class {
 			document.querySelector("#loginPage").style.display = "block";
 			document.querySelector("#loggedInPage").style.display = "none";
 		}
-
-		rhit.projectsManager.beginListeningHome(this.updateList.bind(this));
-		rhit.categoryManager.beginListening(this.updateCatList.bind(this));
+		if (rhit.fbAuthManager.isSignedIn) {
+			rhit.projectsManager.beginListeningHome(this.updateList.bind(this));
+			rhit.categoryManager.beginListening(this.updateCatList.bind(this));
+		}
 	}
 
 	_createProj(project) {
@@ -1162,21 +1165,23 @@ rhit.initPage = () => {
 		new rhit.CreateAccountController();
 	}
 	if (document.querySelector("#mainPage")) {
-		rhit.projectsManager = new rhit.ProjectsManager(rhit.fbAuthManager.uid);
-		rhit.categoryManager = new rhit.CategoryManager(rhit.fbAuthManager.uid);
+		if (rhit.fbAuthManager.isSignedIn) {
+			rhit.projectsManager = new rhit.ProjectsManager(rhit.fbAuthManager.uid);
+			rhit.categoryManager = new rhit.CategoryManager(rhit.fbAuthManager.uid);
+		}
 		new rhit.IndexPageController();
 	}
 	if (document.querySelector("#partsPage")) {
 		rhit.partsManager = new rhit.PartsLibraryManager(rhit.fbAuthManager.uid);
 		rhit.categoryManager = new rhit.CategoryManager(rhit.fbAuthManager.uid);
-		if(urlParams.get("id"))
+		if (urlParams.get("id"))
 			rhit.projectManager = new rhit.ProjectDetailManager(urlParams.get("id"));
 
 		new rhit.PartsLibraryController();
 	}
 	if (document.querySelector("#resourcePage")) {
 		rhit.resourcesManager = new rhit.ResourcesManager(rhit.fbAuthManager.uid);
-		if(urlParams.get("id"))
+		if (urlParams.get("id"))
 			rhit.projectManager = new rhit.ProjectDetailManager(urlParams.get("id"));
 
 		new rhit.ResourcesController();
@@ -1188,7 +1193,7 @@ rhit.initPage = () => {
 	if (document.querySelector("#projectPage")) {
 		rhit.resourcesManager = new rhit.ResourcesManager(rhit.fbAuthManager.uid);
 		rhit.partsManager = new rhit.PartsLibraryManager(rhit.fbAuthManager.uid);
-		if(urlParams.get("id"))
+		if (urlParams.get("id"))
 			rhit.projectManager = new rhit.ProjectDetailManager(urlParams.get("id"));
 		new rhit.ProjectDetailController();
 	}
