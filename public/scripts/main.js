@@ -65,6 +65,44 @@ function htmlToElement(html) {
 	return template.content.firstChild;
 }
 
+rhit.Project = class {
+	constructor(id, name, desc, cost, parts, resources) {
+		this.id = id;
+		this.name = name;
+		this.desc = desc;
+		this.cost = cost;
+		this.parts = parts;
+		this.resources = resources;
+	}
+}
+
+rhit.Resource = class {
+	constructor(id, name, desc, content) {
+		this.id = id;
+		this.name = name;
+		this.desc = desc;
+		this.content = content;
+	}
+}
+
+rhit.Category = class {
+	constructor(id, name) {
+		this.id = id;
+		this.name = name;
+	}
+}
+
+rhit.Part = class {
+	constructor(id, name, desc, price, link, cat) {
+		this.id = id;
+		this.name = name;
+		this.desc = desc;
+		this.price = price;
+		this.link = link;
+		this.cat = cat;
+	}
+}
+
 rhit.FbAuthManager = class {
 	constructor() {
 		this._user = null;
@@ -174,6 +212,12 @@ rhit.PartsLibraryManager = class {
 		return part;
 	}
 
+	getPartByID(id) {
+		this._ref.doc(id).get().then((doc) => {
+			return doc.data();
+		});
+	}
+
 	get length() {
 		return this._documentSnapshots.length;
 	}
@@ -189,6 +233,9 @@ rhit.PartsLibraryController = class {
 		this.focusedPart = null;
 		this.selectedCat;
 
+		const queryString = window.location.search;
+		const urlParams = new URLSearchParams(queryString);
+
 		//User buttons
 		document.querySelector("#submitAddPart").onclick = (event) => {
 			let name = document.querySelector("#addPartName").value;
@@ -202,11 +249,16 @@ rhit.PartsLibraryController = class {
 		document.querySelector("#submitAddCat").onclick = (event) => {
 			let name = document.querySelector("#addCatName").value;
 			rhit.categoryManager.addCategory(name);
-			window.location.reload();
 		}
 
 		document.querySelector("#submitDeletePart").onclick = (event) => {
 			this.deletePart();
+		}
+
+		document.querySelector("#submitDeleteCat").onclick = (event) => {
+			rhit.categoryManager.deleteCategory(urlParams.get("id")).then(() => {
+				window.location.href = "/partsLibrary.html";
+			});
 		}
 
 		document.querySelector("#submitEditPart").onclick = (event) => {
@@ -219,15 +271,19 @@ rhit.PartsLibraryController = class {
 			window.location.href = `/partsLibrary.html`;
 		}
 
-		const queryString = window.location.search;
-		const urlParams = new URLSearchParams(queryString);
-		if(urlParams.get("cat")){
+
+		if (urlParams.get("cat")) {
 			this.selectedCat = urlParams.get("cat");
 			document.querySelector('#categoryDropdown').innerHTML = this.selectedCat;
+			document.querySelector("#catDelete").visible = true;
+		} else {
+			document.querySelector("#catDelete").hidden = true;
 		}
 
 		rhit.partsManager.beginListening(this.selectedCat, this.updateGrid.bind(this));
 		rhit.categoryManager.beginListening(this.updateDropdowns.bind(this));
+		if(rhit.projectManager)
+			rhit.projectManager.beginListening();
 	}
 
 	_createPart(part) {
@@ -240,14 +296,24 @@ rhit.PartsLibraryController = class {
 	}
 
 	updateGrid() {
+		const queryString = window.location.search;
+		const urlParams = new URLSearchParams(queryString);
 		const container = document.querySelector("#partInfo");
 		const newList = htmlToElement('<div id="partsList" class="grid-container grid-child"></div>');
 		for (let i = 0; i < rhit.partsManager.length; i++) {
 			const part = rhit.partsManager.getPartAtIndex(i);
 			const newCard = this._createPart(part);
-			newCard.onclick = (event) => {
-				this.updateFocus(part);
-			};
+
+			if(urlParams.get("action")){
+				let retId = urlParams.get("id");
+				newCard.onclick = (event) => {
+					rhit.projectManager.setPartsList(part.id, retId);
+				};
+			} else {
+				newCard.onclick = (event) => {
+					this.updateFocus(part);
+				};
+			}
 			newList.appendChild(newCard);
 		}
 
@@ -268,7 +334,7 @@ rhit.PartsLibraryController = class {
 	}
 
 	updateDropdowns() {
-		
+
 		const containerAdd = document.querySelector("#addDropdown");
 		const containerEdit = document.querySelector("#editDropdown");
 		const containerSearch = document.querySelector("#selectDropdown");
@@ -280,11 +346,11 @@ rhit.PartsLibraryController = class {
 		const addBtn = htmlToElement('<a id="addCat" class="dropdown-item" data-toggle="modal" href="#" data-target="#addCatDialog"><i class="material-icons">add</i></a>');
 		newSelectList.appendChild(addBtn);
 
-		for(let i = 0; i < rhit.categoryManager.length; i++){
+		for (let i = 0; i < rhit.categoryManager.length; i++) {
 			const cat = rhit.categoryManager.getCategoryAtIndex(i);
-			const newCatSearch = htmlToElement(`<li class="dropdown-item catName">${cat.name}</li>`);
-			const newCatModalAdd = htmlToElement(`<li class="dropdown-item catName">${cat.name}</li>`);
-			const newCatModalEdit = htmlToElement(`<li class="dropdown-item catName">${cat.name}</li>`);
+			const newCatSearch = htmlToElement(`<li class="dropdown-item catName" name="${cat.id}">${cat.name}</li>`);
+			const newCatModalAdd = htmlToElement(`<li class="dropdown-item catName" name="${cat.id}">${cat.name}</li>`);
+			const newCatModalEdit = htmlToElement(`<li class="dropdown-item catName" name="${cat.id}">${cat.name}</li>`);
 			newSelectList.appendChild(newCatSearch);
 			newAddList.appendChild(newCatModalEdit);
 			newEditList.appendChild(newCatModalAdd);
@@ -301,7 +367,7 @@ rhit.PartsLibraryController = class {
 		oldAddList.parentElement.appendChild(newAddList);
 		oldEditList.parentElement.appendChild(newEditList);
 		oldSelectList.parentElement.appendChild(newSelectList);
-		
+
 		oldAddList.remove();
 		oldEditList.remove();
 		oldSelectList.remove();
@@ -315,7 +381,8 @@ rhit.PartsLibraryController = class {
 		});
 
 		$('#selectCat li').on('click', function () {
-			window.location.href = `/partsLibrary.html?cat=${$(this).text()}`;
+			//console.log($(this).attr('name'));
+			window.location.href = `/partsLibrary.html?cat=${$(this).text()}&id=${$(this).attr("name")}`;
 		});
 
 		//
@@ -366,6 +433,8 @@ rhit.CategoryManager = class {
 		this._ref.add({
 			[rhit.FB_KEY_CAT_NAME]: n,
 			[rhit.FB_KEY_AUTHOR]: this._uid,
+		}).then(() => {
+			window.location.reload();
 		}).catch(function (error) {
 			console.log(error);
 		});
@@ -463,6 +532,15 @@ rhit.ResourcesManager = class {
 		return res;
 	}
 
+	getResourceByID(id) {
+		let res = id;
+		this._ref.doc(id).get().then((doc) => {
+			res = new rhit.Resource(id, doc.data().name, doc.data().desc, doc.data().content);
+			console.log(res);
+			return res;
+		});
+	}
+
 	get length() {
 		return this._documentSnapshots.length;
 	}
@@ -492,6 +570,8 @@ rhit.ResourcesController = class {
 		}
 
 		rhit.resourcesManager.beginListening(this.updateList.bind(this));
+		if(rhit.projectManager)
+			rhit.projectManager.beginListening();
 	}
 
 	_createResource(res) {
@@ -499,19 +579,31 @@ rhit.ResourcesController = class {
 		<h4 class="p-name">${res.name}</h4>
 		<h6 class="p-desc">${res.desc}</h6>
 		<hr>
-		<h6 class="p-desc"><a href = "${res.content}">${res.content}</a></h6>
-	  </div>`);
+		<h6 class="p-desc"><a href = "${res.content}" target = "_blank">${res.content}</a></h6>
+	    </div>`);
 	}
 
 	updateList() {
+		const queryString = window.location.search;
+		const urlParams = new URLSearchParams(queryString);
 		const container = document.querySelector("#resourceInfo");
 		const newList = htmlToElement('<div id="resourcesList" class="grid-container grid-child"></div>');
 		for (let i = 0; i < rhit.resourcesManager.length; i++) {
 			const resource = rhit.resourcesManager.getResourceAtIndex(i);
 			const newCard = this._createResource(resource);
-			newCard.onclick = (event) => {
-				this.updateFocus(resource);
-			};
+
+			if(urlParams.get("action")){
+				let retId = urlParams.get("id");
+				newCard.onclick = (event) => {
+					rhit.projectManager.setResourceList(resource.id, retId);
+				};
+			} else {
+				newCard.onclick = (event) => {
+					this.updateFocus(resource);
+				};
+			}
+
+			
 			newList.appendChild(newCard);
 		}
 
@@ -681,24 +773,26 @@ rhit.ProjectsController = class {
 }
 
 rhit.ProjectDetailManager = class {
-	constructor(id){
+	constructor(id) {
 		this._documentSnapshot = {};
+		this.id = id;
 		this._unsubscribe = null;
 		this._ref = firebase.firestore().collection(rhit.FB_COLLECTION_PROJECT).doc(id);
 	}
 
-	beingListening(changeListener){
-		this._ref.onSnapshot((doc) =>{
-			if(doc.exists){
+	beginListening(changeListener) {
+		this._ref.onSnapshot((doc) => {
+			if (doc.exists) {
 				this._documentSnapshot = doc;
-				changeListener();
+				if(changeListener)
+					changeListener();
 			} else {
 				console.log("does not exist")
 			}
 		});
 	}
 
-	stopListening(){
+	stopListening() {
 		this._unsubscribe();
 	}
 
@@ -715,37 +809,110 @@ rhit.ProjectDetailManager = class {
 		});
 	}
 
-	delete(){
+	delete() {
 		return this._ref.delete();
 	}
 
-	get name (){
+	get name() {
 		return this._documentSnapshot.get(rhit.FB_KEY_PROJECT_NAME);
 	}
 
-	get desc (){
+	get desc() {
 		return this._documentSnapshot.get(rhit.FB_KEY_PROJECT_DESC);
 	}
 
-	get cost (){
+	get cost() {
 		return this._documentSnapshot.get(rhit.FB_KEY_PROJECT_COST);
 	}
 
-	get parts (){
+	get parts() {
 		return this._documentSnapshot.get(rhit.FB_KEY_PROJECT_PARTS);
 	}
 
-	get resources (){
+	get resources() {
 		return this._documentSnapshot.get(rhit.FB_KEY_PROJECT_RESOURCES);
 	}
 
-	get author (){
+	get author() {
 		return this._documentSnapshot.get(rhit.FB_KEY_AUTHOR);
+	}
+
+	setResourceList(n, retId) {
+		let reslist = this.resources;
+		reslist.push(n);
+		this._ref.update({
+			[rhit.FB_KEY_PROJECT_RESOURCES]: reslist,
+		}).
+		then(function () {
+			console.log("Document was updated!");
+			window.location.href = "/project.html?id="+retId;
+		}).
+		catch(function (error) {
+			console.error("Error adding document");
+		});
+	}
+
+	removeResource(i){
+		let reslist = this.resources;
+		reslist.splice(i, 1);
+		this._ref.update({
+			[rhit.FB_KEY_PROJECT_RESOURCES]: reslist,
+		}).
+		then(function () {
+			console.log("Document was updated!");
+			window.location.reload();
+		}).
+		catch(function (error) {
+			console.error("Error adding document");
+		});
+	}
+
+	setPartsList(n, retId) {
+		let partslist = this.parts;
+		partslist.push(n);
+		this._ref.update({
+			[rhit.FB_KEY_PROJECT_PARTS]: partslist,
+		}).
+		then(function () {
+			console.log("Document was updated!");
+			window.location.href = "/project.html?id="+retId;
+		}).
+		catch(function (error) {
+			console.error("Error adding document");
+		});
+	}
+
+	updateCost(cost) {
+		this._ref.update({
+			[rhit.FB_KEY_PROJECT_COST]: cost,
+		}).
+		then(function () {
+			console.log("Document was updated!");
+		}).
+		catch(function (error) {
+			console.error("Error adding document");
+		});
+	}
+
+	removePart(i){
+		let partslist = this.parts;
+		partslist.splice(i, 1);
+		this._ref.update({
+			[rhit.FB_KEY_PROJECT_PARTS]: partslist,
+		}).
+		then(function () {
+			console.log("Document was updated!");
+			window.location.reload();
+		}).
+		catch(function (error) {
+			console.error("Error adding document");
+		});
 	}
 }
 
 rhit.ProjectDetailController = class {
-	constructor () {
+	constructor() {
+
 		document.querySelector("#submitEditProject").addEventListener("click", (event) => {
 			const name = document.querySelector("#inputProjectName").value;
 			const desc = document.querySelector("#inputProjectDesc").value;
@@ -753,64 +920,116 @@ rhit.ProjectDetailController = class {
 		});
 
 		document.querySelector("#submitDeleteProject").addEventListener("click", (event) => {
-			rhit.projectManager.delete().then(function(){
+			rhit.projectManager.delete().then(function () {
 				console.log("Deleted!");
 				window.location.href = "/projects.html";
-			}).catch(function(error){
-				
-			});;
+			}).catch(function (error) {
+				console.log(error);
+			});
 		});
 
-		rhit.projectManager.beingListening(this.updateView.bind(this));
+		document.querySelector("#resAddProj").addEventListener("click", (event) => {
+			window.location.href = "/resources.html?action=adding&id="+rhit.projectManager.id;
+		});
+
+		document.querySelector("#partAddProj").addEventListener("click", (event) => {
+			window.location.href = "/partsLibrary.html?action=adding&id="+rhit.projectManager.id;
+		});
+
+		rhit.projectManager.beginListening(this.updateView.bind(this));
+		rhit.resourcesManager.beginListening(this.updateResView.bind(this));
+		rhit.partsManager.beginListening(null, this.updatePartsView.bind(this));
+
+	}
+
+	_createResource(res) {
+		return htmlToElement(`<div class="resource">
+		<h4 class="p-name">${res.name}</h4>
+		<h6 class="p-desc">${res.desc}</h6>
+		<hr>
+		<h6 class="p-desc"><a href="${res.content}">${res.content}</a></h6>
+		<button id="${res.id}" class="btn" type="button"><i class="material-icons">delete</i></button>
+	</div>`);
+	}
+
+	_createPart(part) {
+		return htmlToElement(`<div class="part" data-toggle="modal" data-target="#partCheckDialog">
+		<h4 class="p-name">${part.name}</h4>
+		<h6 class="p-desc">${part.desc}</h6>
+		<hr>
+		<h6 class="p-price">$${part.price}</h6>
+		</div>`);
 	}
 
 	updateView() {
-		if(rhit.projectManager.author != rhit.fbAuthManager.uid){
+		if (rhit.projectManager.author != rhit.fbAuthManager.uid) {
 			window.location.href = "/projects.html";
 		}
 		document.querySelector("#projName").innerHTML = rhit.projectManager.name;
 		document.querySelector("#projDesc").innerHTML = rhit.projectManager.desc;
-		document.querySelector("#projPrice").innerHTML = "$"+rhit.projectManager.cost;
+		document.querySelector("#projPrice").innerHTML = "$" + rhit.projectManager.cost;
 		document.querySelector("#inputProjectName").value = rhit.projectManager.name;
 		document.querySelector("#inputProjectDesc").value = rhit.projectManager.desc;
 	}
-}
 
-rhit.Project = class {
-	constructor(id, name, desc, cost, parts, resources){
-		this.id = id;
-		this.name = name;
-		this.desc = desc;
-		this.cost = cost;
-		this.parts = parts;
-		this.resources = resources;
+	updateResView() {
+		const container = document.querySelector("#resourcesContainer");
+		const newList = htmlToElement('<div id="resourcesList" class="grid-container grid-child"></div>');
+
+		for (let i = 0; i < rhit.projectManager.resources.length; i++) {
+			for (let j = 0; j < rhit.resourcesManager.length; j++) {
+				if (rhit.projectManager.resources[i] == rhit.resourcesManager.getResourceAtIndex(j).id) {
+					let resourceX = rhit.resourcesManager.getResourceAtIndex(j);
+					const newCard = this._createResource(resourceX);
+					newCard.querySelector("#"+resourceX.id).onclick = (event) => {
+						rhit.projectManager.removeResource(i);
+					};
+					newList.appendChild(newCard);
+				}
+			}
+		}
+
+		const oldList = document.querySelector("#resourcesList");
+		container.appendChild(oldList);
+		oldList.removeAttribute("id");
+		oldList.hidden = true;
+
+		oldList.parentElement.appendChild(newList);
 	}
-}
 
-rhit.Resource = class {
-	constructor(id, name, desc, content) {
-		this.id = id;
-		this.name = name;
-		this.desc = desc;
-		this.content = content;
-	}
-}
+	updatePartsView() {
+		const container = document.querySelector("#projPartsContainer");
+		const newList = htmlToElement('<div id="partsList" class="grid-container grid-child"></div>');
+		let cost = 0;
+		for (let i = 0; i < rhit.projectManager.parts.length; i++) {
+			for (let j = 0; j < rhit.partsManager.length; j++) {
+				if (rhit.projectManager.parts[i] == rhit.partsManager.getPartAtIndex(j).id) {
+					let partX = rhit.partsManager.getPartAtIndex(j);
+					cost += parseFloat(partX.price);
+					const newCard = this._createPart(partX);
+					newCard.onclick = (event) => {
+						document.querySelector("#partName").innerHTML = partX.name;
+						document.querySelector("#partDesc").innerHTML = partX.desc;
+						document.querySelector("#partPrice").innerHTML = partX.price;
+						document.querySelector("#partLink").innerHTML = partX.link;
+						document.querySelector("#partCategory").innerHTML = partX.cat;
+						document.querySelector("#deleteButton").onclick = (event) => {
+							rhit.projectManager.removePart(i);
+							
+						}
+					};
+					newList.appendChild(newCard);
+				}
+			}
+		}
+		rhit.projectManager.updateCost(cost);
 
-rhit.Category = class {
-	constructor(id, name){
-		this.id = id;
-		this.name = name;
-	}
-}
+		const oldList = document.querySelector("#partsList");
+		container.appendChild(oldList);
+		oldList.removeAttribute("id");
+		oldList.hidden = true;
 
-rhit.Part = class {
-	constructor(id, name, desc, price, link, cat) {
-		this.id = id;
-		this.name = name;
-		this.desc = desc;
-		this.price = price;
-		this.link = link;
-		this.cat = cat;
+		oldList.parentElement.appendChild(newList);
 	}
 }
 
@@ -858,7 +1077,8 @@ rhit.IndexPageController = class {
 			document.querySelector("#loggedInPage").style.display = "none";
 		}
 
-		rhit.projectsManager.beginListeningHome(this.updateList.bind(this))
+		rhit.projectsManager.beginListeningHome(this.updateList.bind(this));
+		rhit.categoryManager.beginListening(this.updateCatList.bind(this));
 	}
 
 	_createProj(project) {
@@ -870,6 +1090,14 @@ rhit.IndexPageController = class {
 		<h5 class="p-price">$${project.cost}</h5>
 		<h5 class="p-price">Components: ${project.parts.length}</h5>
 		<h5 class="p-price">Resources: ${project.resources.length}</h5>
+	  </div>`);
+	}
+
+	_createCat(cat) {
+		return htmlToElement(`<div id="catGridHome">
+		<div class="catHome">
+		  <h3>${cat.name}</h3>
+		</div>
 	  </div>`);
 	}
 
@@ -886,6 +1114,26 @@ rhit.IndexPageController = class {
 		}
 
 		const oldList = document.querySelector("#projectsGridHome");
+		container.appendChild(oldList);
+		oldList.removeAttribute("id");
+		oldList.hidden = true;
+
+		oldList.parentElement.appendChild(newList);
+	}
+
+	updateCatList() {
+		const container = document.querySelector("#catListContainer");
+		const newList = htmlToElement('<div id="catGridHome"></div>');
+		for (let i = 0; i < rhit.categoryManager.length; i++) {
+			const cat = rhit.categoryManager.getCategoryAtIndex(i);
+			const newCard = this._createCat(cat);
+			newCard.onclick = (event) => {
+				window.location.href = `/partsLibrary.html?cat=${cat.name}`;
+			};
+			newList.appendChild(newCard);
+		}
+
+		const oldList = document.querySelector("#catGridHome");
 		container.appendChild(oldList);
 		oldList.removeAttribute("id");
 		oldList.hidden = true;
@@ -915,23 +1163,33 @@ rhit.initPage = () => {
 	}
 	if (document.querySelector("#mainPage")) {
 		rhit.projectsManager = new rhit.ProjectsManager(rhit.fbAuthManager.uid);
+		rhit.categoryManager = new rhit.CategoryManager(rhit.fbAuthManager.uid);
 		new rhit.IndexPageController();
 	}
 	if (document.querySelector("#partsPage")) {
 		rhit.partsManager = new rhit.PartsLibraryManager(rhit.fbAuthManager.uid);
 		rhit.categoryManager = new rhit.CategoryManager(rhit.fbAuthManager.uid);
+		if(urlParams.get("id"))
+			rhit.projectManager = new rhit.ProjectDetailManager(urlParams.get("id"));
+
 		new rhit.PartsLibraryController();
 	}
 	if (document.querySelector("#resourcePage")) {
 		rhit.resourcesManager = new rhit.ResourcesManager(rhit.fbAuthManager.uid);
+		if(urlParams.get("id"))
+			rhit.projectManager = new rhit.ProjectDetailManager(urlParams.get("id"));
+
 		new rhit.ResourcesController();
 	}
-	if (document.querySelector("#projectsPage")){
+	if (document.querySelector("#projectsPage")) {
 		rhit.projectsManager = new rhit.ProjectsManager(rhit.fbAuthManager.uid);
 		new rhit.ProjectsController();
 	}
-	if(document.querySelector("#projectPage")){
-		rhit.projectManager = new rhit.ProjectDetailManager(urlParams.get("id"));
+	if (document.querySelector("#projectPage")) {
+		rhit.resourcesManager = new rhit.ResourcesManager(rhit.fbAuthManager.uid);
+		rhit.partsManager = new rhit.PartsLibraryManager(rhit.fbAuthManager.uid);
+		if(urlParams.get("id"))
+			rhit.projectManager = new rhit.ProjectDetailManager(urlParams.get("id"));
 		new rhit.ProjectDetailController();
 	}
 }

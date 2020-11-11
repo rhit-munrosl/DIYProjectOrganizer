@@ -34,6 +34,8 @@
                         
                     </ul>
                 </div>
+                <button id="catDelete" class="btn" type="button" data-toggle="modal"
+                            data-target="#deleteCatDialog"><i class="material-icons">delete</i></button>
                 <button id="clearSearch" class="btn btn-secondary" type="button">Clear Search</button>
                 <button id="partAdd" class="btn btn-secondary" type="button" data-toggle="modal"
                     data-target="#addPartDialog">Add Part</button>
@@ -52,7 +54,7 @@
 
                     <h6 id="partDesc" class="p-desc"></h6>
 
-                    <h6 id="partLink" class="p-desc"><a id="partNav" href="#"></a></h6>
+                    <h6 id="partLink" class="p-desc"><a id="partNav" href="#" target = "_blank"></a></h6>
                     <hr>
                     <h6 id="partPrice" class="p-price"></h6>
                     <h6 id="partCat" class="p-desc"></h6>
@@ -183,6 +185,22 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">CANCEL</button>
                     <button type="button" id="submitAddCat" class="btn btn-primary" data-dismiss="modal">ADD</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="deleteCatDialog" tabindex="-1" role="dialog" aria-labelledby="delete part dialog"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Are you sure you would like to delete this category?</h5>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">CANCEL</button>
+                    <button type="button" id="submitDeleteCat" class="btn btn-primary"
+                        data-dismiss="modal">YES</button>
                 </div>
             </div>
         </div>
