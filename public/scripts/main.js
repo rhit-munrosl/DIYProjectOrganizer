@@ -739,7 +739,7 @@ rhit.ProjectsController = class {
 
 		document.querySelector("#projSearch").onclick = (event) => {
 			let searchQ = document.querySelector("#projSearchInput").value;
-
+			//local vs online
 			//http://localhost:5001/diyprojectorganizer/us-central1/api
 			//https://us-central1-diyprojectorganizer.cloudfunctions.net/api
 			fetch(`https://us-central1-diyprojectorganizer.cloudfunctions.net/api/projSearch/${searchQ}`)
