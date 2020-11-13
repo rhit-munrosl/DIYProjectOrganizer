@@ -1,31 +1,4 @@
-/**
- * @fileoverview
- * Provides the JavaScript interactions for all pages.
- *
- * @author 
- * PUT_YOUR_NAME_HERE
- */
-
-/** namespace. */
 var rhit = rhit || {};
-
-/** globals */
-rhit.variableName = "";
-
-/** function and class syntax examples */
-rhit.functionName = function () {
-	/** function body */
-};
-
-rhit.ClassName = class {
-	constructor() {
-
-	}
-
-	methodName() {
-
-	}
-}
 
 rhit.FB_COLLECTION_PART = "Components";
 rhit.FB_KEY_PART_NAME = "name";
@@ -243,7 +216,7 @@ rhit.PartsLibraryController = class {
 			let price = parseFloat(document.querySelector("#addPartPrice").value);
 			let link = document.querySelector("#addPartLink").value;
 			let cat = document.querySelector("#categoryDropdownAddPart").innerHTML;
-		
+
 			rhit.partsManager.addPart(name, desc, price.toFixed(2), link, cat);
 		}
 
@@ -272,6 +245,16 @@ rhit.PartsLibraryController = class {
 			window.location.href = `/partsLibrary.html`;
 		}
 
+		document.querySelector("#partSearch").onclick = (event) => {
+			let searchQ = document.querySelector("#partSearchInput").value;
+
+			this.updateGrid(searchQ);
+			//local vs online
+			//http://localhost:5001/diyprojectorganizer/us-central1/api
+			//https://us-central1-diyprojectorganizer.cloudfunctions.net/api
+
+		}
+
 
 		if (urlParams.get("cat")) {
 			this.selectedCat = urlParams.get("cat");
@@ -290,47 +273,126 @@ rhit.PartsLibraryController = class {
 	_createPart(part) {
 		return htmlToElement(`<div class="part">
 		<h4 class="p-name">${part.name}</h4>
+		<h6 class="p-desc">${part.description}</h6>
+		<hr>
+		<h6 class="p-desc">$${part.price}</h6>
+	  </div>`);
+	}
+
+	_createPartFirebase(part) {
+		return htmlToElement(`<div class="part">
+		<h4 class="p-name">${part.name}</h4>
 		<h6 class="p-desc">${part.desc}</h6>
 		<hr>
 		<h6 class="p-desc">$${part.price}</h6>
 	  </div>`);
 	}
 
-	updateGrid() {
-		const queryString = window.location.search;
-		const urlParams = new URLSearchParams(queryString);
-		const container = document.querySelector("#partInfo");
-		const newList = htmlToElement('<div id="partsList" class="grid-container grid-child"></div>');
-		for (let i = 0; i < rhit.partsManager.length; i++) {
-			const part = rhit.partsManager.getPartAtIndex(i);
-			const newCard = this._createPart(part);
+	updateGrid(query) {
+		if (query) {
+			let searchResults = null;
+			let results = 0;
+			fetch(`https://us-central1-diyprojectorganizer.cloudfunctions.net/api/partSearch/${query}`)
+				.then(response => response.json())
+				.then(data => {
+					searchResults = data;
+				}).then(() => {
+					const queryString = window.location.search;
+					const urlParams = new URLSearchParams(queryString);
+					const container = document.querySelector("#partInfo");
+					const newList = htmlToElement('<div id="partsList" class="grid-container grid-child"></div>');
+					for (let i = 0; i < searchResults.length; i++) {
+						const part = searchResults[i];
+						if (part.author == rhit.fbAuthManager.uid) {
+							if (this.selectedCat) {
+								if (this.selectedCat == part.category) {
+									const newCard = this._createPart(part);
 
-			if (urlParams.get("action")) {
-				let retId = urlParams.get("id");
-				newCard.onclick = (event) => {
-					rhit.projectManager.setPartsList(part.id, retId);
-				};
-			} else {
-				newCard.onclick = (event) => {
-					this.updateFocus(part);
-				};
-			}
-			newList.appendChild(newCard);
-		}
+									if (urlParams.get("action")) {
+										let retId = urlParams.get("id");
+										newCard.onclick = (event) => {
+											rhit.projectManager.setPartsList(part.id, retId);
+										};
+									} else {
+										newCard.onclick = (event) => {
+											this.updateFocus(part);
+										};
+									}
+									newList.appendChild(newCard);
 
-		const oldList = document.querySelector("#partsList");
-		container.appendChild(oldList);
-		oldList.removeAttribute("id");
-		oldList.hidden = true;
+									results++;
+								}
+							} else {
+								const newCard = this._createPart(part);
 
-		oldList.parentElement.appendChild(newList);
-		oldList.parentElement.appendChild(document.querySelector("#partContainer"));
+								if (urlParams.get("action")) {
+									let retId = urlParams.get("id");
+									newCard.onclick = (event) => {
+										rhit.projectManager.setPartsList(part.id, retId);
+									};
+								} else {
+									newCard.onclick = (event) => {
+										this.updateFocus(part);
+									};
+								}
+								newList.appendChild(newCard);
 
-		if (rhit.partsManager.length > 0) {
-			this.updateFocus(rhit.partsManager.getPartAtIndex(0));
-			document.querySelector("#partContainer").style.display = "block";
+								results++;
+							}
+						}
+					}
+
+					const oldList = document.querySelector("#partsList");
+					container.appendChild(oldList);
+					oldList.removeAttribute("id");
+					oldList.hidden = true;
+
+					oldList.parentElement.appendChild(newList);
+					oldList.parentElement.appendChild(document.querySelector("#partContainer"));
+
+					if (results > 0) {
+						this.updateFocus(rhit.partsManager.getPartAtIndex(0));
+						document.querySelector("#partContainer").style.display = "block";
+					} else {
+						document.querySelector("#partContainer").style.display = "none";
+					}
+				});
 		} else {
-			document.querySelector("#partContainer").style.display = "none";
+			const queryString = window.location.search;
+			const urlParams = new URLSearchParams(queryString);
+			const container = document.querySelector("#partInfo");
+			const newList = htmlToElement('<div id="partsList" class="grid-container grid-child"></div>');
+			for (let i = 0; i < rhit.partsManager.length; i++) {
+				const part = rhit.partsManager.getPartAtIndex(i);
+				const newCard = this._createPartFirebase(part);
+
+				if (urlParams.get("action")) {
+					let retId = urlParams.get("id");
+					newCard.onclick = (event) => {
+						rhit.projectManager.setPartsList(part.id, retId);
+					};
+				} else {
+					newCard.onclick = (event) => {
+						this.updateFocus(part);
+					};
+				}
+				newList.appendChild(newCard);
+			}
+
+			const oldList = document.querySelector("#partsList");
+			container.appendChild(oldList);
+			oldList.removeAttribute("id");
+			oldList.hidden = true;
+
+			oldList.parentElement.appendChild(newList);
+			oldList.parentElement.appendChild(document.querySelector("#partContainer"));
+
+			if (rhit.partsManager.length > 0) {
+				this.updateFocus(rhit.partsManager.getPartAtIndex(0));
+				document.querySelector("#partContainer").style.display = "block";
+			} else {
+				document.querySelector("#partContainer").style.display = "none";
+			}
 		}
 	}
 
@@ -417,7 +479,7 @@ rhit.PartsLibraryController = class {
 		let newLink = document.querySelector("#inputPartLink").value;
 		let newPrice = parseFloat(document.querySelector("#inputPartPrice").value);
 		let newCat = document.querySelector("#categoryDropdownEditPart").innerHTML;
-		rhit.partsManager.updatePart(this.focusedPart.id, newName, newDesc, newPrice.toFixed(2),newLink, newCat);
+		rhit.partsManager.updatePart(this.focusedPart.id, newName, newDesc, newPrice.toFixed(2), newLink, newCat);
 	}
 }
 
@@ -570,6 +632,16 @@ rhit.ResourcesController = class {
 			this.updateResource();
 		}
 
+		document.querySelector("#resourceSearch").onclick = (event) => {
+			let searchQ = document.querySelector("#resSearchInput").value;
+
+			this.updateList(searchQ);
+			//local vs online
+			//http://localhost:5001/diyprojectorganizer/us-central1/api
+			//https://us-central1-diyprojectorganizer.cloudfunctions.net/api
+
+		}
+
 		rhit.resourcesManager.beginListening(this.updateList.bind(this));
 		if (rhit.projectManager)
 			rhit.projectManager.beginListening();
@@ -578,49 +650,110 @@ rhit.ResourcesController = class {
 	_createResource(res) {
 		return htmlToElement(`<div class="resource">
 		<h4 class="p-name">${res.name}</h4>
+		<h6 class="p-desc">${res.description}</h6>
+		<hr>
+		<h6 class="p-desc"><a href = "${res.content}" target = "_blank">${res.content}</a></h6>
+	    </div>`);
+	}
+
+	_createResourceFirebase(res) {
+		return htmlToElement(`<div class="resource">
+		<h4 class="p-name">${res.name}</h4>
 		<h6 class="p-desc">${res.desc}</h6>
 		<hr>
 		<h6 class="p-desc"><a href = "${res.content}" target = "_blank">${res.content}</a></h6>
 	    </div>`);
 	}
 
-	updateList() {
-		const queryString = window.location.search;
-		const urlParams = new URLSearchParams(queryString);
-		const container = document.querySelector("#resourceInfo");
-		const newList = htmlToElement('<div id="resourcesList" class="grid-container grid-child"></div>');
-		for (let i = 0; i < rhit.resourcesManager.length; i++) {
-			const resource = rhit.resourcesManager.getResourceAtIndex(i);
-			const newCard = this._createResource(resource);
+	updateList(query) {
+		if (query) {
+			let searchResults = null;
+			let results = 0;
+			fetch(`https://us-central1-diyprojectorganizer.cloudfunctions.net/api/resSearch/${query}`)
+				.then(response => response.json())
+				.then(data => {
+					searchResults = data;
+				}).then(() => {
+					const queryString = window.location.search;
+					const urlParams = new URLSearchParams(queryString);
+					const container = document.querySelector("#resourceInfo");
+					const newList = htmlToElement('<div id="resourcesList" class="grid-container grid-child"></div>');
+					for (let i = 0; i < searchResults.length; i++) {
+						const resource = searchResults[i];
+						if (resource.author == rhit.fbAuthManager.uid) {
+							const newCard = this._createResource(resource);
 
-			if (urlParams.get("action")) {
-				let retId = urlParams.get("id");
-				newCard.onclick = (event) => {
-					rhit.projectManager.setResourceList(resource.id, retId);
-				};
-			} else {
-				newCard.onclick = (event) => {
-					this.updateFocus(resource);
-				};
+							if (urlParams.get("action")) {
+								let retId = urlParams.get("id");
+								newCard.onclick = (event) => {
+									rhit.projectManager.setResourceList(resource.id, retId);
+								};
+							} else {
+								newCard.onclick = (event) => {
+									this.updateFocus(resource);
+								};
+							}
+
+
+							newList.appendChild(newCard);
+
+							results++;
+						}
+					}
+
+					const oldList = document.querySelector("#resourcesList");
+					container.appendChild(oldList);
+					oldList.removeAttribute("id");
+					oldList.hidden = true;
+
+					oldList.parentElement.appendChild(newList);
+					oldList.parentElement.appendChild(document.querySelector("#resourceContainer"));
+
+					if (results > 0) {
+						this.updateFocus(rhit.resourcesManager.getResourceAtIndex(0));
+						document.querySelector("#resourceContainer").style.display = "block";
+					} else {
+						document.querySelector("#resourceContainer").style.display = "none";
+					}
+				});
+		} else {
+			const queryString = window.location.search;
+			const urlParams = new URLSearchParams(queryString);
+			const container = document.querySelector("#resourceInfo");
+			const newList = htmlToElement('<div id="resourcesList" class="grid-container grid-child"></div>');
+			for (let i = 0; i < rhit.resourcesManager.length; i++) {
+				const resource = rhit.resourcesManager.getResourceAtIndex(i);
+				const newCard = this._createResourceFirebase(resource);
+
+				if (urlParams.get("action")) {
+					let retId = urlParams.get("id");
+					newCard.onclick = (event) => {
+						rhit.projectManager.setResourceList(resource.id, retId);
+					};
+				} else {
+					newCard.onclick = (event) => {
+						this.updateFocus(resource);
+					};
+				}
+
+
+				newList.appendChild(newCard);
 			}
 
+			const oldList = document.querySelector("#resourcesList");
+			container.appendChild(oldList);
+			oldList.removeAttribute("id");
+			oldList.hidden = true;
 
-			newList.appendChild(newCard);
-		}
+			oldList.parentElement.appendChild(newList);
+			oldList.parentElement.appendChild(document.querySelector("#resourceContainer"));
 
-		const oldList = document.querySelector("#resourcesList");
-		container.appendChild(oldList);
-		oldList.removeAttribute("id");
-		oldList.hidden = true;
-
-		oldList.parentElement.appendChild(newList);
-		oldList.parentElement.appendChild(document.querySelector("#resourceContainer"));
-
-		if (rhit.resourcesManager.length > 0) {
-			this.updateFocus(rhit.resourcesManager.getResourceAtIndex(0));
-			document.querySelector("#resourceContainer").style.display = "block";
-		} else {
-			document.querySelector("#resourceContainer").style.display = "none";
+			if (rhit.resourcesManager.length > 0) {
+				this.updateFocus(rhit.resourcesManager.getResourceAtIndex(0));
+				document.querySelector("#resourceContainer").style.display = "block";
+			} else {
+				document.querySelector("#resourceContainer").style.display = "none";
+			}
 		}
 	}
 
@@ -728,6 +861,7 @@ rhit.ProjectsManager = class {
 rhit.ProjectsController = class {
 
 	constructor() {
+
 		document.querySelector("#submitAddProj").onclick = (event) => {
 			let name = document.querySelector("#addProjName").value;
 			let desc = document.querySelector("#addProjDesc").value;
@@ -739,20 +873,30 @@ rhit.ProjectsController = class {
 
 		document.querySelector("#projSearch").onclick = (event) => {
 			let searchQ = document.querySelector("#projSearchInput").value;
+
+			this.updateList(searchQ);
 			//local vs online
 			//http://localhost:5001/diyprojectorganizer/us-central1/api
 			//https://us-central1-diyprojectorganizer.cloudfunctions.net/api
-			fetch(`https://us-central1-diyprojectorganizer.cloudfunctions.net/api/projSearch/${searchQ}`)
-			.then(response=>response.json())
-			.then(data=>{
-				console.log(data);
-			});
+
 		}
 
 		rhit.projectsManager.beginListening(this.updateList.bind(this));
 	}
 
 	_createProj(project) {
+		return htmlToElement(`<div class="project">
+		<h3>${project.name}</h3>
+		<br>
+		<h5 class="p-desc">${project.description}</h6>
+		<br>
+		<h5 class="p-price">$${project.totalPrice}</h5>
+		<h5 class="p-price">Components: ${project.components.length}</h5>
+		<h5 class="p-price">Resources: ${project.resources.length}</h5>
+	  </div>`);
+	}
+
+	_createProjFirebase(project) {
 		return htmlToElement(`<div class="project">
 		<h3>${project.name}</h3>
 		<br>
@@ -764,26 +908,60 @@ rhit.ProjectsController = class {
 	  </div>`);
 	}
 
-	updateList() {
-		const container = document.querySelector("#projectsContainer");
-		const newList = htmlToElement('<div id="projectsGrid"></div>');
-		for (let i = 0; i < rhit.projectsManager.length; i++) {
-			const project = rhit.projectsManager.getProjectAtIndex(i);
-			const newCard = this._createProj(project);
-			newCard.onclick = (event) => {
-				window.location.href = `/project.html?id=${project.id}`;
-			};
-			newList.appendChild(newCard);
+	updateList(query) {
+		if (query) {
+			console.log("work");
+			let searchResults = null;
+			fetch(`https://us-central1-diyprojectorganizer.cloudfunctions.net/api/projSearch/${query}`)
+				.then(response => response.json())
+				.then(data => {
+					searchResults = data;
+				}).then(() => {
+					const container = document.querySelector("#projectsContainer");
+					const newList = htmlToElement('<div id="projectsGrid"></div>');
+
+
+					for (let i = 0; i < searchResults.length; i++) {
+						const project = searchResults[i];
+						if (project.author == rhit.fbAuthManager.uid) {
+							const newCard = this._createProj(project);
+							newCard.onclick = (event) => {
+								window.location.href = `/project.html?id=${project.objectID}`;
+							};
+							newList.appendChild(newCard);
+						}
+					}
+
+					const oldList = document.querySelector("#projectsGrid");
+					container.appendChild(oldList);
+					oldList.removeAttribute("id");
+					oldList.hidden = true;
+
+					oldList.parentElement.appendChild(newList);
+				});
+		} else {
+			console.log("don't work");
+			const container = document.querySelector("#projectsContainer");
+			const newList = htmlToElement('<div id="projectsGrid"></div>');
+			for (let i = 0; i < rhit.projectsManager.length; i++) {
+				const project = rhit.projectsManager.getProjectAtIndex(i);
+				const newCard = this._createProjFirebase(project);
+				newCard.onclick = (event) => {
+					window.location.href = `/project.html?id=${project.id}`;
+				};
+				newList.appendChild(newCard);
+			}
+
+			const oldList = document.querySelector("#projectsGrid");
+			container.appendChild(oldList);
+			oldList.removeAttribute("id");
+			oldList.hidden = true;
+
+			oldList.parentElement.appendChild(newList);
 		}
-
-		const oldList = document.querySelector("#projectsGrid");
-		container.appendChild(oldList);
-		oldList.removeAttribute("id");
-		oldList.hidden = true;
-
-		oldList.parentElement.appendChild(newList);
 	}
 }
+
 
 rhit.ProjectDetailManager = class {
 	constructor(id) {
@@ -1019,7 +1197,7 @@ rhit.ProjectDetailController = class {
 				if (rhit.projectManager.parts[i] == rhit.partsManager.getPartAtIndex(j).id) {
 					let partX = rhit.partsManager.getPartAtIndex(j);
 					cost += parseFloat(partX.price);
-					
+
 					const newCard = this._createPart(partX);
 					newCard.onclick = (event) => {
 						document.querySelector("#partName").innerHTML = partX.name;
