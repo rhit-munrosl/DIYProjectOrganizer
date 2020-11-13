@@ -30,7 +30,7 @@ body {
     left: 0;
     background-color: #f1f1f1;
     overflow: hidden;
-    transition: 0.5s;
+    transition: 0.3s;
     padding-top: 60px;
 }
 
@@ -215,4 +215,8 @@ a.divLink{
 
 #catDelete {
     display: hidden;
+}
+
+#homeBtn {
+    font-size: 1.3em;
 }

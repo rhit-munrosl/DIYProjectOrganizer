@@ -737,6 +737,18 @@ rhit.ProjectsController = class {
 			rhit.projectsManager.addProject(name, desc, cost, parts, resources);
 		}
 
+		document.querySelector("#projSearch").onclick = (event) => {
+			let searchQ = document.querySelector("#projSearchInput").value;
+
+			//http://localhost:5001/diyprojectorganizer/us-central1/api
+			//https://us-central1-diyprojectorganizer.cloudfunctions.net/api
+			fetch(`https://us-central1-diyprojectorganizer.cloudfunctions.net/api/projSearch/${searchQ}`)
+			.then(response=>response.json())
+			.then(data=>{
+				console.log(data);
+			});
+		}
+
 		rhit.projectsManager.beginListening(this.updateList.bind(this));
 	}
 
