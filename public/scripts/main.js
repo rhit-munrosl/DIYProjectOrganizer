@@ -1236,14 +1236,16 @@ rhit.CreateAccountController = class {
 
 
 			if (inputPass.value == inputConfirmPass.value) {
-				firebase.auth().createUserWithEmailAndPassword(inputEmail.value, inputPass.value).catch(function (error) {
+				firebase.auth().createUserWithEmailAndPassword(inputEmail.value, inputPass.value).then(()=>{
+					window.location.href = "/";
+				}).catch(function (error) {
 					// Handle Errors here.
 					var errorCode = error.code;
 					var errorMessage = error.message;
 					console.log("Create account error occured", error);
 					// ...
 				});
-				window.location.href = "/";
+				
 			} else {
 				document.querySelector("#errorText").innerHTML = "Passwords must match";
 			}
